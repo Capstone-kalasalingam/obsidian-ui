@@ -16,6 +16,7 @@ import ClassStudents from "./pages/principal/ClassStudents";
 import AttendanceOverview from "./pages/principal/AttendanceOverview";
 import Announcements from "./pages/principal/Announcements";
 import Reports from "./pages/principal/Reports";
+import PrincipalFees from "./pages/principal/Fees";
 import TeacherDetails from "./pages/principal/TeacherDetails";
 import TeacherLogin from "./pages/teacher/Login";
 import TeacherDashboard from "./pages/teacher/Dashboard";
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/principal/attendance" element={<AttendanceOverview />} />
           <Route path="/principal/announcements" element={<Announcements />} />
           <Route path="/principal/reports" element={<Reports />} />
+          <Route path="/principal/fees" element={<PrincipalFees />} />
           <Route path="/teacher/login" element={<TeacherLogin />} />
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/attendance" element={<TeacherAttendance />} />

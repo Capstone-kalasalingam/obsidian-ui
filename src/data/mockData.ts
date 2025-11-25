@@ -139,3 +139,38 @@ export const mockAttendanceTrends = [
   { month: "Dec", teachers: 94, students: 91 },
   { month: "Jan", teachers: 95, students: 94 },
 ];
+
+export interface StudentFee {
+  id: string;
+  studentName: string;
+  className: string;
+  section: string;
+  totalFee: number;
+  paidAmount: number;
+  pendingAmount: number;
+  dueDate: string;
+  status: "paid" | "pending" | "overdue";
+}
+
+export const mockStudentFees: StudentFee[] = [
+  { id: "1", studentName: "Aarav Kumar", className: "LKG", section: "A", totalFee: 45000, paidAmount: 45000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "2", studentName: "Diya Sharma", className: "LKG", section: "A", totalFee: 45000, paidAmount: 30000, pendingAmount: 15000, dueDate: "2024-02-15", status: "pending" },
+  { id: "3", studentName: "Vihaan Patel", className: "UKG", section: "A", totalFee: 48000, paidAmount: 48000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "4", studentName: "Ananya Singh", className: "UKG", section: "B", totalFee: 48000, paidAmount: 20000, pendingAmount: 28000, dueDate: "2024-01-31", status: "overdue" },
+  { id: "5", studentName: "Reyansh Gupta", className: "Class 1", section: "A", totalFee: 50000, paidAmount: 50000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "6", studentName: "Isha Reddy", className: "Class 1", section: "B", totalFee: 50000, paidAmount: 35000, pendingAmount: 15000, dueDate: "2024-02-28", status: "pending" },
+  { id: "7", studentName: "Arjun Rao", className: "Class 2", section: "A", totalFee: 52000, paidAmount: 52000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "8", studentName: "Saanvi Desai", className: "Class 2", section: "B", totalFee: 52000, paidAmount: 25000, pendingAmount: 27000, dueDate: "2024-01-20", status: "overdue" },
+  { id: "9", studentName: "Advait Joshi", className: "Class 3", section: "A", totalFee: 55000, paidAmount: 55000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "10", studentName: "Myra Nair", className: "Class 3", section: "B", totalFee: 55000, paidAmount: 40000, pendingAmount: 15000, dueDate: "2024-03-15", status: "pending" },
+  { id: "11", studentName: "Ayaan Khan", className: "Class 4", section: "A", totalFee: 58000, paidAmount: 58000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "12", studentName: "Kiara Mehta", className: "Class 4", section: "B", totalFee: 58000, paidAmount: 30000, pendingAmount: 28000, dueDate: "2024-02-10", status: "pending" },
+  { id: "13", studentName: "Vivaan Iyer", className: "Class 5", section: "A", totalFee: 60000, paidAmount: 60000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "14", studentName: "Aanya Kapoor", className: "Class 5", section: "B", totalFee: 60000, paidAmount: 45000, pendingAmount: 15000, dueDate: "2024-03-01", status: "pending" },
+  { id: "15", studentName: "Ishaan Verma", className: "Class 6", section: "A", totalFee: 65000, paidAmount: 65000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "16", studentName: "Navya Malhotra", className: "Class 6", section: "B", totalFee: 65000, paidAmount: 35000, pendingAmount: 30000, dueDate: "2024-01-25", status: "overdue" },
+  { id: "17", studentName: "Atharv Saxena", className: "Class 7", section: "A", totalFee: 68000, paidAmount: 68000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "18", studentName: "Siya Bansal", className: "Class 7", section: "B", totalFee: 68000, paidAmount: 50000, pendingAmount: 18000, dueDate: "2024-02-20", status: "pending" },
+  { id: "19", studentName: "Aditya Agarwal", className: "Class 8", section: "A", totalFee: 70000, paidAmount: 70000, pendingAmount: 0, dueDate: "2024-12-31", status: "paid" },
+  { id: "20", studentName: "Riya Bhatia", className: "Class 8", section: "B", totalFee: 70000, paidAmount: 40000, pendingAmount: 30000, dueDate: "2024-03-05", status: "pending" },
+];

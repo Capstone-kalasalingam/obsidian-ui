@@ -34,11 +34,6 @@ const Login = () => {
     }
 
     if (email && password) {
-      toast({
-        title: "Login Successful",
-        description: `Welcome to ${role} Portal (Demo Mode)`,
-      });
-      
       // Navigate based on selected role
       switch (role) {
         case "principal":
