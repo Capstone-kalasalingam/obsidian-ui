@@ -22,11 +22,11 @@ export default function BottomNav() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center gap-1 ${
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
                 isActive ? "text-foreground" : "text-muted-foreground"
               }`}
             >
-              <Icon className={`w-6 h-6 ${isActive ? "fill-current" : ""}`} />
+              <Icon className="w-6 h-6" />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           );
