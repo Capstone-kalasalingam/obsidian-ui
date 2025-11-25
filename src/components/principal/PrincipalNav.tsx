@@ -15,12 +15,14 @@ import {
   Bell,
   GraduationCap,
   UsersRound,
+  UserPlus,
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
   { label: "Staff Management", href: "/principal/staff", icon: Users },
   { label: "Classes", href: "/principal/classes", icon: BookOpen },
+  { label: "Assign Teacher", href: "/principal/assign-class-teacher", icon: UserPlus },
   { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },
   { label: "Reports", href: "/principal/reports", icon: FileText },
