@@ -34,7 +34,6 @@ const bottomNavItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
   { label: "Students", href: "/principal/attendance", icon: UsersRound },
   { label: "Teachers", href: "/principal/staff", icon: Users },
-  { label: "Profile", href: "/principal/dashboard", icon: User },
 ];
 
 const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
@@ -101,18 +100,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
               </div>
 
               {/* Sidebar Footer */}
-              <div className="p-4 border-t border-border space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-4 px-4"
-                  onClick={() => {
-                    setMobileOpen(false);
-                    // Navigate to profile
-                  }}
-                >
-                  <User className="w-5 h-5" />
-                  Profile
-                </Button>
+              <div className="p-4 border-t border-border">
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-4 px-4 text-destructive hover:text-destructive"
@@ -162,9 +150,6 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <User className="w-5 h-5" />
           </Button>
         </div>
         </div>
