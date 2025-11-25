@@ -9,12 +9,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { students } from "@/data/teacherMockData";
-import { CheckCircle, XCircle, Briefcase, CalendarDays } from "lucide-react";
+import { CheckCircle, XCircle, CalendarDays } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-type AttendanceStatus = "present" | "absent" | "leave";
+type AttendanceStatus = "present" | "absent";
 
 export default function Attendance() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -31,14 +31,13 @@ export default function Attendance() {
   // Mock attendance data for calendar highlighting
   const attendanceHistory = {
     present: [1, 2, 5, 6, 8, 9, 12, 13, 15, 16, 19, 20, 22, 23],
-    absent: [3, 10, 17],
-    leave: [7, 14, 21],
+    absent: [3, 10, 17, 7, 14, 21],
   };
 
-  const toggleStudentAttendance = (studentId: number, status: AttendanceStatus) => {
+  const toggleStudentAttendance = (studentId: number) => {
     setStudentAttendance((prev) => ({
       ...prev,
-      [studentId]: prev[studentId] === status ? "present" : status,
+      [studentId]: prev[studentId] === "present" ? "absent" : "present",
     }));
   };
 
@@ -54,11 +53,11 @@ export default function Attendance() {
           acc[status]++;
           return acc;
         },
-        { present: 0, absent: 0, leave: 0 }
+        { present: 0, absent: 0 }
       );
       toast({
         title: "Student Attendance Saved",
-        description: `Present: ${summary.present}, Absent: ${summary.absent}, Leave: ${summary.leave}`,
+        description: `Present: ${summary.present}, Absent: ${summary.absent}`,
       });
     }
   };
@@ -66,7 +65,6 @@ export default function Attendance() {
   const ownAttendanceSummary = {
     present: attendanceHistory.present.length,
     absent: attendanceHistory.absent.length,
-    leave: attendanceHistory.leave.length,
   };
 
   return (
@@ -136,14 +134,10 @@ export default function Attendance() {
                         absent: (date) =>
                           attendanceHistory.absent.includes(date.getDate()) &&
                           view === "own",
-                        onLeave: (date) =>
-                          attendanceHistory.leave.includes(date.getDate()) &&
-                          view === "own",
                       }}
                       modifiersClassNames={{
                         present: "bg-primary/20 text-primary font-bold hover:bg-primary/30",
                         absent: "bg-destructive/20 text-destructive font-bold hover:bg-destructive/30",
-                        onLeave: "bg-orange-500/20 text-orange-600 font-bold hover:bg-orange-500/30",
                       }}
                     />
                   </PopoverContent>
@@ -164,14 +158,14 @@ export default function Attendance() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {/* Status Buttons */}
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => setOwnAttendance("present")}
                           className={cn(
                             "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                             ownAttendance === "present"
-                              ? "bg-primary border-primary text-primary-foreground shadow-lg scale-105"
-                              : "bg-background border-border hover:border-primary/50"
+                              ? "bg-green-500 border-green-500 text-white shadow-lg scale-105"
+                              : "bg-background border-border hover:border-green-500/50"
                           )}
                         >
                           <CheckCircle className="w-6 h-6" />
@@ -182,24 +176,12 @@ export default function Attendance() {
                           className={cn(
                             "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                             ownAttendance === "absent"
-                              ? "bg-destructive border-destructive text-destructive-foreground shadow-lg scale-105"
-                              : "bg-background border-border hover:border-destructive/50"
+                              ? "bg-red-500 border-red-500 text-white shadow-lg scale-105"
+                              : "bg-background border-border hover:border-red-500/50"
                           )}
                         >
                           <XCircle className="w-6 h-6" />
                           <div className="font-semibold text-sm">Absent</div>
-                        </button>
-                        <button
-                          onClick={() => setOwnAttendance("leave")}
-                          className={cn(
-                            "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
-                            ownAttendance === "leave"
-                              ? "bg-orange-500 border-orange-500 text-white shadow-lg scale-105"
-                              : "bg-background border-border hover:border-orange-500/50"
-                          )}
-                        >
-                          <Briefcase className="w-6 h-6" />
-                          <div className="font-semibold text-sm">Leave</div>
                         </button>
                       </div>
 
@@ -215,10 +197,10 @@ export default function Attendance() {
                       <CardTitle className="text-lg">Monthly Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="grid grid-cols-2 gap-4 text-center">
                         <div className="space-y-2">
-                          <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-primary" />
+                          <div className="w-12 h-12 mx-auto rounded-full bg-green-500/10 flex items-center justify-center">
+                            <CheckCircle className="w-6 h-6 text-green-500" />
                           </div>
                           <div className="text-2xl font-bold">
                             {ownAttendanceSummary.present}
@@ -228,25 +210,14 @@ export default function Attendance() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-destructive" />
+                          <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
+                            <XCircle className="w-6 h-6 text-red-500" />
                           </div>
                           <div className="text-2xl font-bold">
                             {ownAttendanceSummary.absent}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             Days Absent
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="w-12 h-12 mx-auto rounded-full bg-orange-500/10 flex items-center justify-center">
-                            <Briefcase className="w-6 h-6 text-orange-600" />
-                          </div>
-                          <div className="text-2xl font-bold">
-                            {ownAttendanceSummary.leave}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            On Leave
                           </div>
                         </div>
                       </div>
@@ -272,47 +243,36 @@ export default function Attendance() {
                           className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
                         >
                           <span className="font-semibold text-base">{student.name}</span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                toggleStudentAttendance(student.id, "present")
-                              }
+                          <button
+                            onClick={() => toggleStudentAttendance(student.id)}
+                            className={cn(
+                              "relative w-32 h-12 rounded-full font-bold text-sm transition-all shadow-sm flex items-center justify-between px-2",
+                              studentAttendance[student.id] === "present"
+                                ? "bg-green-500 text-white"
+                                : "bg-red-500 text-white"
+                            )}
+                          >
+                            <span className={cn(
+                              "flex-1 text-center transition-opacity",
+                              studentAttendance[student.id] === "present" ? "opacity-100" : "opacity-50"
+                            )}>
+                              Present
+                            </span>
+                            <span className={cn(
+                              "flex-1 text-center transition-opacity",
+                              studentAttendance[student.id] === "absent" ? "opacity-100" : "opacity-50"
+                            )}>
+                              Absent
+                            </span>
+                            <div
                               className={cn(
-                                "w-12 h-12 rounded-full font-bold text-base transition-all shadow-sm",
+                                "absolute top-1 w-14 h-10 bg-white rounded-full shadow-md transition-all",
                                 studentAttendance[student.id] === "present"
-                                  ? "bg-green-500 text-white shadow-md scale-105"
-                                  : "bg-background border-2 border-border text-muted-foreground hover:border-green-500/50"
+                                  ? "left-1"
+                                  : "right-1"
                               )}
-                            >
-                              P
-                            </button>
-                            <button
-                              onClick={() =>
-                                toggleStudentAttendance(student.id, "absent")
-                              }
-                              className={cn(
-                                "w-12 h-12 rounded-full font-bold text-base transition-all shadow-sm",
-                                studentAttendance[student.id] === "absent"
-                                  ? "bg-red-500 text-white shadow-md scale-105"
-                                  : "bg-background border-2 border-border text-muted-foreground hover:border-red-500/50"
-                              )}
-                            >
-                              A
-                            </button>
-                            <button
-                              onClick={() =>
-                                toggleStudentAttendance(student.id, "leave")
-                              }
-                              className={cn(
-                                "w-12 h-12 rounded-full font-bold text-base transition-all shadow-sm",
-                                studentAttendance[student.id] === "leave"
-                                  ? "bg-orange-500 text-white shadow-md scale-105"
-                                  : "bg-background border-2 border-border text-muted-foreground hover:border-orange-500/50"
-                              )}
-                            >
-                              L
-                            </button>
-                          </div>
+                            />
+                          </button>
                         </div>
                       ))}
                     </CardContent>
@@ -338,10 +298,6 @@ export default function Attendance() {
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded bg-destructive/20 border border-destructive/40" />
                     <span className="text-muted-foreground">Absent</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-orange-500/20 border border-orange-500/40" />
-                    <span className="text-muted-foreground">On Leave</span>
                   </div>
                 </div>
               </CardContent>
