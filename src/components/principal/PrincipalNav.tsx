@@ -42,7 +42,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
-    navigate("/principal/login");
+    navigate("/");
   };
 
   const getPageTitle = () => {

@@ -41,7 +41,7 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    navigate("/student/login");
+    navigate("/");
   };
 
   const getPageTitle = () => {
