@@ -6,21 +6,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mockTeachers, Teacher } from "@/data/mockData";
-import { Search, Plus, User } from "lucide-react";
+import { Search, Plus, User, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type SortOption = "name" | "class" | "status";
 
 const StaffManagement = () => {
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState<Teacher[]>(mockTeachers);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("active");
+  const [sortBy, setSortBy] = useState<SortOption>("name");
 
-  const filteredTeachers = teachers.filter((teacher) => {
-    const matchesSearch = teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      teacher.subjects.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = filter === "all" || teacher.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredAndSortedTeachers = teachers
+    .filter((teacher) => {
+      const matchesSearch = teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.subjects.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesFilter = filter === "all" || teacher.status === filter;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "class":
+          const classA = a.classAssigned || "zzzz"; // Put unassigned at end
+          const classB = b.classAssigned || "zzzz";
+          return classA.localeCompare(classB);
+        case "status":
+          return a.status.localeCompare(b.status);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <PrincipalNav>
@@ -56,11 +81,26 @@ const StaffManagement = () => {
               ALL
             </Button>
           </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger className="h-10 rounded-xl border-border">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Sort by Name</SelectItem>
+                <SelectItem value="class">Sort by Class</SelectItem>
+                <SelectItem value="status">Sort by Status</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Staff List */}
         <div className="space-y-3">
-          {filteredTeachers.map((teacher) => (
+          {filteredAndSortedTeachers.map((teacher) => (
             <Card 
               key={teacher.id} 
               className="bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
