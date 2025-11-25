@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,11 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, User, Camera, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { mockTeachers } from "@/data/mockData";
 
-const AddStaff = () => {
+const EditStaff = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -17,6 +19,17 @@ const AddStaff = () => {
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    // Load staff data based on ID
+    const teacher = mockTeachers.find(t => t.id === id);
+    if (teacher) {
+      setFormData({
+        name: teacher.name,
+        mobile: teacher.phone || "",
+      });
+    }
+  }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,7 +60,7 @@ const AddStaff = () => {
     
     // Show success animation then navigate
     setTimeout(() => {
-      toast.success("Staff member added successfully!");
+      toast.success("Staff member updated successfully!");
       navigate("/principal/staff");
     }, 1500);
   };
@@ -66,7 +79,7 @@ const AddStaff = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold">Add Staff</h1>
+            <h1 className="text-xl font-bold">Edit Staff</h1>
           </div>
         </div>
 
@@ -98,7 +111,7 @@ const AddStaff = () => {
                   transition={{ delay: 0.4 }}
                   className="mt-4 text-xl font-semibold"
                 >
-                  Staff Added Successfully!
+                  Staff Updated Successfully!
                 </motion.p>
               </motion.div>
             </motion.div>
@@ -172,10 +185,10 @@ const AddStaff = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  Adding Staff...
+                  Updating Staff...
                 </>
               ) : (
-                "Save"
+                "Update"
               )}
             </Button>
           </form>
@@ -185,4 +198,4 @@ const AddStaff = () => {
   );
 };
 
-export default AddStaff;
+export default EditStaff;

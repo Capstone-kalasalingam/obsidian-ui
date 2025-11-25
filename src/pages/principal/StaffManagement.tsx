@@ -104,7 +104,7 @@ const StaffManagement = () => {
             <Card 
               key={teacher.id} 
               className="bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-              onClick={() => navigate(`/principal/teacher/${teacher.id}`)}
+              onClick={() => navigate(`/principal/edit-staff/${teacher.id}`)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between gap-3">
