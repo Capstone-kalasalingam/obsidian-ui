@@ -2,7 +2,7 @@ import { useState } from "react";
 import TeacherNav from "@/components/teacher/TeacherNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { classProgress } from "@/data/teacherMockData";
-import { TrendingUp, Users, Award, BarChart3, ArrowUpDown } from "lucide-react";
+import { TrendingUp, Users, Award, ArrowUpDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -128,36 +128,6 @@ export default function ClassProgress() {
           </Card>
         </div>
 
-        {/* Subject-wise Performance */}
-        <Card className="animate-slide-in-left border-0">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2 md:gap-3">
-              <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-              <CardTitle className="text-base md:text-lg">Subject-wise Performance</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {classProgress.subjectPerformance.map((item, index) => (
-                <div key={index}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold">{item.subject}</span>
-                    <span className="text-lg font-bold text-primary">
-                      {item.average}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3">
-                    <div
-                      className="bg-primary h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${item.average}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Student Performance List */}
         <Card className="mb-6 animate-slide-in-left border-0">
           <CardHeader className="pb-3">
@@ -207,14 +177,14 @@ export default function ClassProgress() {
         </Card>
 
         {/* Additional Insights */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6 animate-slide-up">
+        <div className="grid grid-cols-1 gap-4 md:gap-6 mt-4 md:mt-6 animate-slide-up">
           <Card className="border-0">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm md:text-base">Performance Stats</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
                   <div>
                     <p className="text-sm font-medium text-green-800">
                       Excellent (85%+)
@@ -223,11 +193,11 @@ export default function ClassProgress() {
                       Top tier performance
                     </p>
                   </div>
-                  <span className="text-2xl font-bold text-green-700">
+                  <span className="text-3xl font-bold text-green-700">
                     {allStudents.filter(s => s.score >= 85).length}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl">
                   <div>
                     <p className="text-sm font-medium text-orange-800">
                       Needs Support (&lt;70%)
@@ -236,43 +206,9 @@ export default function ClassProgress() {
                       Requires attention
                     </p>
                   </div>
-                  <span className="text-2xl font-bold text-orange-700">
+                  <span className="text-3xl font-bold text-orange-700">
                     {allStudents.filter(s => s.score < 70).length}
                   </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Recent Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm font-medium text-green-800">
-                    Attendance Improving
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    +8% over 2 weeks
-                  </p>
-                </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm font-medium text-blue-800">
-                    Math Scores Rising
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Average up by 6 points
-                  </p>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <p className="text-sm font-medium text-orange-800">
-                    Geometry Struggling
-                  </p>
-                  <p className="text-xs text-orange-600 mt-1">
-                    Consider extra classes
-                  </p>
                 </div>
               </div>
             </CardContent>
