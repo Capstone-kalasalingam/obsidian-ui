@@ -12,6 +12,7 @@ import StaffManagement from "./pages/principal/StaffManagement";
 import AddStaff from "./pages/principal/AddStaff";
 import AssignClassTeacher from "./pages/principal/AssignClassTeacher";
 import ClassManagement from "./pages/principal/ClassManagement";
+import ClassStudents from "./pages/principal/ClassStudents";
 import AttendanceOverview from "./pages/principal/AttendanceOverview";
 import Announcements from "./pages/principal/Announcements";
 import Reports from "./pages/principal/Reports";
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/principal/add-staff" element={<AddStaff />} />
           <Route path="/principal/teacher/:id" element={<TeacherDetails />} />
           <Route path="/principal/classes" element={<ClassManagement />} />
+          <Route path="/principal/classes/:className" element={<ClassStudents />} />
           <Route path="/principal/assign-class-teacher" element={<AssignClassTeacher />} />
           <Route path="/principal/attendance" element={<AttendanceOverview />} />
           <Route path="/principal/announcements" element={<Announcements />} />
