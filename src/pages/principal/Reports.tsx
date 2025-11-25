@@ -30,7 +30,7 @@ const Reports = () => {
       icon: DollarSign,
       iconColor: "text-destructive",
       bgColor: "bg-destructive/10",
-      route: "#",
+      route: "/principal/fees",
     },
     {
       title: "Other",
