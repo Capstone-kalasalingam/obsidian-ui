@@ -10,6 +10,7 @@ import PrincipalLogin from "./pages/principal/Login";
 import PrincipalDashboard from "./pages/principal/Dashboard";
 import StaffManagement from "./pages/principal/StaffManagement";
 import AddStaff from "./pages/principal/AddStaff";
+import EditStaff from "./pages/principal/EditStaff";
 import AssignClassTeacher from "./pages/principal/AssignClassTeacher";
 import ClassManagement from "./pages/principal/ClassManagement";
 import ClassStudents from "./pages/principal/ClassStudents";
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/principal/dashboard" element={<PrincipalDashboard />} />
           <Route path="/principal/staff" element={<StaffManagement />} />
           <Route path="/principal/add-staff" element={<AddStaff />} />
+          <Route path="/principal/edit-staff/:id" element={<EditStaff />} />
           <Route path="/principal/teacher/:id" element={<TeacherDetails />} />
           <Route path="/principal/classes" element={<ClassManagement />} />
           <Route path="/principal/classes/:className" element={<ClassStudents />} />
