@@ -39,7 +39,7 @@ export default function TeacherNav({ children }: { children: React.ReactNode }) 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    navigate("/teacher/login");
+    navigate("/");
   };
 
   const getPageTitle = () => {
