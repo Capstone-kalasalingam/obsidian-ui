@@ -227,6 +227,36 @@ export default function Attendance() {
               ) : (
                 /* Student Attendance View */
                 <div className="space-y-6 animate-slide-in-left">
+                  {/* Real-time Summary Counter */}
+                  <Card className="bg-gradient-to-r from-primary/5 to-secondary/5">
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <CheckCircle className="w-6 h-6 text-green-500" />
+                          </div>
+                          <div>
+                            <div className="text-3xl font-bold text-green-500">
+                              {Object.values(studentAttendance).filter(s => s === "present").length}
+                            </div>
+                            <div className="text-sm text-muted-foreground font-medium">Present</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <XCircle className="w-6 h-6 text-red-500" />
+                          </div>
+                          <div>
+                            <div className="text-3xl font-bold text-red-500">
+                              {Object.values(studentAttendance).filter(s => s === "absent").length}
+                            </div>
+                            <div className="text-sm text-muted-foreground font-medium">Absent</div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-lg">
