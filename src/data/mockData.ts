@@ -21,6 +21,9 @@ export interface Class {
   students: number;
   teacherId?: string;
   teacherName?: string;
+  attendancePercentage: number;
+  topPerformers: number;
+  weakPerformers: number;
 }
 
 export interface Announcement {
@@ -72,30 +75,30 @@ export const mockTeachers: Teacher[] = [
 ];
 
 export const mockClasses: Class[] = [
-  { id: "1", name: "LKG", section: "A", students: 25, teacherId: "1", teacherName: "Sarah Johnson" },
-  { id: "2", name: "LKG", section: "B", students: 23, teacherId: "13", teacherName: "Jennifer Thomas" },
-  { id: "3", name: "UKG", section: "A", students: 28, teacherId: "2", teacherName: "Michael Chen" },
-  { id: "4", name: "UKG", section: "B", students: 26, teacherId: "14", teacherName: "Richard Jackson" },
-  { id: "5", name: "Class 1", section: "A", students: 30, teacherId: "3", teacherName: "Emily Rodriguez" },
-  { id: "6", name: "Class 1", section: "B", students: 29, teacherId: "15", teacherName: "Susan White" },
-  { id: "7", name: "Class 2", section: "A", students: 32, teacherId: "4", teacherName: "David Kumar" },
-  { id: "8", name: "Class 2", section: "B", students: 31, teacherId: "17", teacherName: "Margaret Clark" },
-  { id: "9", name: "Class 3", section: "A", students: 35, teacherId: "5", teacherName: "Lisa Wang" },
-  { id: "10", name: "Class 3", section: "B", students: 33, teacherId: "18", teacherName: "Daniel Lewis" },
-  { id: "11", name: "Class 4", section: "A", students: 34, teacherId: "6", teacherName: "Robert Brown" },
-  { id: "12", name: "Class 4", section: "B", students: 32, teacherId: "19", teacherName: "Dorothy Robinson" },
-  { id: "13", name: "Class 5", section: "A", students: 36, teacherId: "7", teacherName: "Maria Garcia" },
-  { id: "14", name: "Class 5", section: "B", students: 35, teacherId: "20", teacherName: "Paul Walker" },
-  { id: "15", name: "Class 6", section: "A", students: 38, teacherId: "8", teacherName: "James Wilson" },
-  { id: "16", name: "Class 6", section: "B", students: 37, teacherId: "21", teacherName: "Nancy Young" },
-  { id: "17", name: "Class 7", section: "A", students: 40, teacherId: "9", teacherName: "Patricia Lee" },
-  { id: "18", name: "Class 7", section: "B", students: 39, teacherId: "22", teacherName: "Mark Allen" },
-  { id: "19", name: "Class 8", section: "A", students: 42, teacherId: "10", teacherName: "John Martinez" },
-  { id: "20", name: "Class 8", section: "B", students: 41, teacherId: "23", teacherName: "Betty King" },
-  { id: "21", name: "Class 9", section: "A", students: 40, teacherId: "11", teacherName: "Linda Anderson" },
-  { id: "22", name: "Class 9", section: "B", students: 38, teacherId: "24", teacherName: "George Wright" },
-  { id: "23", name: "Class 10", section: "A", students: 35, teacherId: "12", teacherName: "William Taylor" },
-  { id: "24", name: "Class 10", section: "B", students: 34, teacherId: "25", teacherName: "Helen Lopez" },
+  { id: "1", name: "LKG", section: "A", students: 25, teacherId: "1", teacherName: "Sarah Johnson", attendancePercentage: 92, topPerformers: 5, weakPerformers: 3 },
+  { id: "2", name: "LKG", section: "B", students: 23, teacherId: "13", teacherName: "Jennifer Thomas", attendancePercentage: 88, topPerformers: 4, weakPerformers: 4 },
+  { id: "3", name: "UKG", section: "A", students: 28, teacherId: "2", teacherName: "Michael Chen", attendancePercentage: 94, topPerformers: 6, weakPerformers: 2 },
+  { id: "4", name: "UKG", section: "B", students: 26, teacherId: "14", teacherName: "Richard Jackson", attendancePercentage: 90, topPerformers: 5, weakPerformers: 3 },
+  { id: "5", name: "Class 1", section: "A", students: 30, teacherId: "3", teacherName: "Emily Rodriguez", attendancePercentage: 91, topPerformers: 7, weakPerformers: 4 },
+  { id: "6", name: "Class 1", section: "B", students: 29, teacherId: "15", teacherName: "Susan White", attendancePercentage: 89, topPerformers: 6, weakPerformers: 5 },
+  { id: "7", name: "Class 2", section: "A", students: 32, teacherId: "4", teacherName: "David Kumar", attendancePercentage: 93, topPerformers: 8, weakPerformers: 3 },
+  { id: "8", name: "Class 2", section: "B", students: 31, teacherId: "17", teacherName: "Margaret Clark", attendancePercentage: 87, topPerformers: 7, weakPerformers: 6 },
+  { id: "9", name: "Class 3", section: "A", students: 35, teacherId: "5", teacherName: "Lisa Wang", attendancePercentage: 95, topPerformers: 9, weakPerformers: 2 },
+  { id: "10", name: "Class 3", section: "B", students: 33, teacherId: "18", teacherName: "Daniel Lewis", attendancePercentage: 91, topPerformers: 8, weakPerformers: 4 },
+  { id: "11", name: "Class 4", section: "A", students: 34, teacherId: "6", teacherName: "Robert Brown", attendancePercentage: 92, topPerformers: 8, weakPerformers: 3 },
+  { id: "12", name: "Class 4", section: "B", students: 32, teacherId: "19", teacherName: "Dorothy Robinson", attendancePercentage: 88, topPerformers: 7, weakPerformers: 5 },
+  { id: "13", name: "Class 5", section: "A", students: 36, teacherId: "7", teacherName: "Maria Garcia", attendancePercentage: 94, topPerformers: 10, weakPerformers: 3 },
+  { id: "14", name: "Class 5", section: "B", students: 35, teacherId: "20", teacherName: "Paul Walker", attendancePercentage: 90, topPerformers: 9, weakPerformers: 4 },
+  { id: "15", name: "Class 6", section: "A", students: 38, teacherId: "8", teacherName: "James Wilson", attendancePercentage: 93, topPerformers: 11, weakPerformers: 4 },
+  { id: "16", name: "Class 6", section: "B", students: 37, teacherId: "21", teacherName: "Nancy Young", attendancePercentage: 89, topPerformers: 10, weakPerformers: 5 },
+  { id: "17", name: "Class 7", section: "A", students: 40, teacherId: "9", teacherName: "Patricia Lee", attendancePercentage: 91, topPerformers: 12, weakPerformers: 5 },
+  { id: "18", name: "Class 7", section: "B", students: 39, teacherId: "22", teacherName: "Mark Allen", attendancePercentage: 87, topPerformers: 11, weakPerformers: 6 },
+  { id: "19", name: "Class 8", section: "A", students: 42, teacherId: "10", teacherName: "John Martinez", attendancePercentage: 92, topPerformers: 13, weakPerformers: 5 },
+  { id: "20", name: "Class 8", section: "B", students: 41, teacherId: "23", teacherName: "Betty King", attendancePercentage: 88, topPerformers: 12, weakPerformers: 7 },
+  { id: "21", name: "Class 9", section: "A", students: 40, teacherId: "11", teacherName: "Linda Anderson", attendancePercentage: 90, topPerformers: 12, weakPerformers: 6 },
+  { id: "22", name: "Class 9", section: "B", students: 38, teacherId: "24", teacherName: "George Wright", attendancePercentage: 86, topPerformers: 11, weakPerformers: 7 },
+  { id: "23", name: "Class 10", section: "A", students: 35, teacherId: "12", teacherName: "William Taylor", attendancePercentage: 89, topPerformers: 10, weakPerformers: 6 },
+  { id: "24", name: "Class 10", section: "B", students: 34, teacherId: "25", teacherName: "Helen Lopez", attendancePercentage: 85, topPerformers: 9, weakPerformers: 8 },
 ];
 
 export const mockAnnouncements: Announcement[] = [
