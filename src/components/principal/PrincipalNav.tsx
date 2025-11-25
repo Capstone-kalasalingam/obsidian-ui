@@ -16,6 +16,7 @@ import {
   GraduationCap,
   UsersRound,
   UserPlus,
+  UserCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -23,7 +24,7 @@ const navItems = [
   { label: "Staff Management", href: "/principal/staff", icon: Users },
   { label: "Add Staff", href: "/principal/add-staff", icon: UserPlus },
   { label: "Classes", href: "/principal/classes", icon: BookOpen },
-  { label: "Assign Teacher", href: "/principal/assign-class-teacher", icon: UserPlus },
+  { label: "Assign Teacher", href: "/principal/assign-class-teacher", icon: UserCheck },
   { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },
   { label: "Reports", href: "/principal/reports", icon: FileText },
