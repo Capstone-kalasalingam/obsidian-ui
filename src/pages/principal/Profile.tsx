@@ -6,9 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 
 const initialProfile = {
-  name: "Dr. Sarah Johnson",
+  name: "",
   role: "Principal",
-  schoolName: "St. Mary's International School"
+  schoolName: ""
 };
 
 const Profile = () => {
@@ -73,32 +73,31 @@ const Profile = () => {
                 value={tempProfile.name}
                 onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
                 className="text-3xl font-semibold text-center bg-muted px-4 py-2 rounded-md w-full"
+                placeholder="Enter your name"
               />
             ) : (
-              <CardTitle className="text-3xl">{profile.name}</CardTitle>
+              <CardTitle className="text-3xl">{profile.name || "Enter your name"}</CardTitle>
             )}
             <CardDescription className="text-base">
               {profile.role}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-              <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                <Building2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">School Name</p>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={tempProfile.schoolName}
-                      onChange={(e) => setTempProfile({ ...tempProfile, schoolName: e.target.value })}
-                      className="font-medium bg-background px-2 py-1 rounded w-full mt-1"
-                    />
-                  ) : (
-                    <p className="font-medium">{profile.schoolName}</p>
-                  )}
-                </div>
+          <CardContent className="space-y-4">
+            <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
+              <Building2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">School Name</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={tempProfile.schoolName}
+                    onChange={(e) => setTempProfile({ ...tempProfile, schoolName: e.target.value })}
+                    className="font-medium bg-background px-2 py-1 rounded w-full mt-1"
+                    placeholder="Enter school name"
+                  />
+                ) : (
+                  <p className="font-medium">{profile.schoolName || "Not set"}</p>
+                )}
               </div>
             </div>
 
