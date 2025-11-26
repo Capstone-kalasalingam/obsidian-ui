@@ -1,100 +1,124 @@
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, Building, IdCard, Edit, GraduationCap, Calendar } from "lucide-react";
+import { User, Building2, Edit, Camera } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 
-const principalProfile = {
+const initialProfile = {
   name: "Dr. Sarah Johnson",
   role: "Principal",
-  email: "sarah.johnson@school.edu",
-  phone: "+1 (555) 123-4567",
-  employeeId: "EMP2024001",
-  department: "Administration",
-  joinDate: "January 2020",
-  qualification: "Ph.D. in Educational Leadership"
+  schoolName: "St. Mary's International School"
 };
 
 const Profile = () => {
+  const [profile, setProfile] = useState(initialProfile);
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempProfile, setTempProfile] = useState(initialProfile);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEdit = () => {
+    if (isEditing) {
+      setProfile(tempProfile);
+    } else {
+      setTempProfile(profile);
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleCancel = () => {
+    setTempProfile(profile);
+    setIsEditing(false);
+  };
+
   return (
     <PrincipalNav>
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        {/* Profile Card */}
         <Card className="shadow-lg border animate-fade-in">
           <CardHeader className="text-center pb-6">
-            <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <User className="h-12 w-12 text-primary" />
+            <div className="mx-auto relative w-24 h-24 mb-4">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={profileImage || undefined} />
+                <AvatarFallback className="bg-primary/10">
+                  <User className="h-12 w-12 text-primary" />
+                </AvatarFallback>
+              </Avatar>
+              {isEditing && (
+                <label htmlFor="profile-image" className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors">
+                  <Camera className="h-4 w-4" />
+                  <input
+                    id="profile-image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              )}
             </div>
-            <CardTitle className="text-3xl">{principalProfile.name}</CardTitle>
+            {isEditing ? (
+              <input
+                type="text"
+                value={tempProfile.name}
+                onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
+                className="text-3xl font-semibold text-center bg-muted px-4 py-2 rounded-md w-full"
+              />
+            ) : (
+              <CardTitle className="text-3xl">{profile.name}</CardTitle>
+            )}
             <CardDescription className="text-base">
-              {principalProfile.role}
+              {profile.role}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Personal Information */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <Mail className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{principalProfile.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <Phone className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">{principalProfile.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <IdCard className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Employee ID</p>
-                    <p className="font-medium">{principalProfile.employeeId}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <Building className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Department</p>
-                    <p className="font-medium">{principalProfile.department}</p>
-                  </div>
+              <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
+                <Building2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">School Name</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={tempProfile.schoolName}
+                      onChange={(e) => setTempProfile({ ...tempProfile, schoolName: e.target.value })}
+                      className="font-medium bg-background px-2 py-1 rounded w-full mt-1"
+                    />
+                  ) : (
+                    <p className="font-medium">{profile.schoolName}</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Professional Information */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Professional Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <GraduationCap className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Qualification</p>
-                    <p className="font-medium">{principalProfile.qualification}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                  <Calendar className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Joined Date</p>
-                    <p className="font-medium">{principalProfile.joinDate}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Edit Button (Disabled for Demo) */}
-            <div className="pt-4 border-t">
-              <Button className="w-full md:w-auto" disabled>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile (Demo Only)
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2">
-                Profile editing is not available in the demo version
-              </p>
+            <div className="pt-4 border-t flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button onClick={handleEdit} className="flex-1 md:flex-none">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
+                  <Button onClick={handleCancel} variant="outline" className="flex-1 md:flex-none">
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleEdit} className="w-full md:w-auto">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
