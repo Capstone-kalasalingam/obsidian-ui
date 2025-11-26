@@ -140,6 +140,40 @@ export const mockAttendanceTrends = [
   { month: "Jan", teachers: 95, students: 94 },
 ];
 
+export const mockNonTeachingStaff: NonTeachingStaff[] = [
+  { id: "1", name: "Rajesh Kumar", role: "Administrative Officer", email: "rajesh.k@school.com", phone: "+1234567820", salary: 35000, status: "active", address: "123 Admin Lane, Springfield", joiningDate: "January 10, 2018", idNumber: "NTS001" },
+  { id: "2", name: "Priya Sharma", role: "Accountant", email: "priya.s@school.com", phone: "+1234567821", salary: 38000, status: "active", address: "456 Finance St, Springfield", joiningDate: "March 15, 2019", idNumber: "NTS002" },
+  { id: "3", name: "Amit Patel", role: "Lab Assistant", email: "amit.p@school.com", phone: "+1234567822", salary: 28000, status: "active", address: "789 Science Rd, Springfield", joiningDate: "June 20, 2020", idNumber: "NTS003" },
+  { id: "4", name: "Sunita Reddy", role: "Librarian", email: "sunita.r@school.com", phone: "+1234567823", salary: 32000, status: "active", address: "321 Book Ave, Springfield", joiningDate: "August 5, 2017", idNumber: "NTS004" },
+  { id: "5", name: "Vijay Singh", role: "Security Guard", email: "vijay.s@school.com", phone: "+1234567824", salary: 22000, status: "active", address: "654 Safety Blvd, Springfield", joiningDate: "February 12, 2019", idNumber: "NTS005" },
+  { id: "6", name: "Lakshmi Nair", role: "School Nurse", email: "lakshmi.n@school.com", phone: "+1234567825", salary: 36000, status: "active", address: "987 Health Dr, Springfield", joiningDate: "July 18, 2018", idNumber: "NTS006" },
+  { id: "7", name: "Ramesh Gupta", role: "Maintenance Staff", email: "ramesh.g@school.com", phone: "+1234567826", salary: 20000, status: "active", address: "147 Service Ln, Springfield", joiningDate: "November 3, 2020", idNumber: "NTS007" },
+  { id: "8", name: "Kavita Desai", role: "Receptionist", email: "kavita.d@school.com", phone: "+1234567827", salary: 25000, status: "active", address: "258 Front Desk Way, Springfield", joiningDate: "April 22, 2019", idNumber: "NTS008" },
+  { id: "9", name: "Suresh Joshi", role: "Transport Coordinator", email: "suresh.j@school.com", phone: "+1234567828", salary: 30000, status: "active", address: "369 Bus Route St, Springfield", joiningDate: "September 8, 2018", idNumber: "NTS009" },
+  { id: "10", name: "Anita Mehta", role: "Cafeteria Manager", email: "anita.m@school.com", phone: "+1234567829", salary: 27000, status: "active", address: "741 Kitchen Rd, Springfield", joiningDate: "May 14, 2020", idNumber: "NTS010" },
+  { id: "11", name: "Deepak Verma", role: "IT Support", email: "deepak.v@school.com", phone: "+1234567830", salary: 40000, status: "active", address: "852 Tech Park, Springfield", joiningDate: "January 25, 2019", idNumber: "NTS011" },
+  { id: "12", name: "Meena Kapoor", role: "Office Assistant", email: "meena.k@school.com", phone: "+1234567831", salary: 23000, status: "active", address: "963 Admin Ave, Springfield", joiningDate: "October 30, 2020", idNumber: "NTS012" },
+  { id: "13", name: "Arun Malhotra", role: "Sports Coordinator", email: "arun.m@school.com", phone: "+1234567832", salary: 33000, status: "active", address: "159 Sports Complex, Springfield", joiningDate: "June 7, 2018", idNumber: "NTS013" },
+  { id: "14", name: "Pooja Bansal", role: "Counselor", email: "pooja.b@school.com", phone: "+1234567833", salary: 35000, status: "active", address: "357 Care Center, Springfield", joiningDate: "March 19, 2019", idNumber: "NTS014" },
+  { id: "15", name: "Sandeep Saxena", role: "Groundskeeper", email: "sandeep.s@school.com", phone: "+1234567834", salary: 21000, status: "active", address: "753 Garden Ln, Springfield", joiningDate: "December 2, 2020", idNumber: "NTS015" },
+  { id: "16", name: "Rekha Agarwal", role: "Store Keeper", email: "rekha.a@school.com", phone: "+1234567835", salary: 24000, status: "active", address: "951 Storage St, Springfield", joiningDate: "August 16, 2019", idNumber: "NTS016" },
+  { id: "17", name: "Manoj Bhatia", role: "Driver", email: "manoj.b@school.com", phone: "+1234567836", salary: 22000, status: "active", address: "246 Transport Hub, Springfield", joiningDate: "February 28, 2018", idNumber: "NTS017" },
+  { id: "18", name: "Neha Chopra", role: "Hostel Warden", email: "neha.c@school.com", phone: "+1234567837", salary: 29000, status: "active", address: "468 Hostel Block, Springfield", joiningDate: "July 11, 2019", idNumber: "NTS018" },
+];
+
+export interface NonTeachingStaff {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  salary?: number;
+  status: "active" | "inactive";
+  address?: string;
+  joiningDate?: string;
+  idNumber?: string;
+}
+
 export interface StudentFee {
   id: string;
   studentName: string;

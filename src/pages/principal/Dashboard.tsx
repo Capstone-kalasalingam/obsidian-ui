@@ -1,6 +1,6 @@
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockTeachers, mockClasses, mockAnnouncements, mockAttendanceData } from "@/data/mockData";
+import { mockTeachers, mockClasses, mockAnnouncements, mockAttendanceData, mockNonTeachingStaff } from "@/data/mockData";
 import {
   Users,
   GraduationCap,
@@ -18,7 +18,7 @@ const Dashboard = () => {
   const totalTeachers = mockTeachers.length;
   const totalStudents = mockClasses.reduce((sum, cls) => sum + cls.students, 0);
   const totalClasses = mockClasses.length;
-  const nonTeachingStaff = 18;
+  const nonTeachingStaff = mockNonTeachingStaff.length;
   const totalTeacherCount = mockAttendanceData.teachersPresent + mockAttendanceData.teachersAbsent;
   const totalStudentCount = mockAttendanceData.studentsPresent + mockAttendanceData.studentsAbsent;
   const teacherAttendance = Math.round((mockAttendanceData.teachersPresent / totalTeacherCount) * 100);
