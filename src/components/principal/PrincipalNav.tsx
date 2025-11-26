@@ -34,6 +34,7 @@ const bottomNavItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
   { label: "Students", href: "/principal/attendance", icon: UsersRound },
   { label: "Teachers", href: "/principal/staff", icon: Users },
+  { label: "Profile", href: "/principal/profile", icon: User },
 ];
 
 const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
