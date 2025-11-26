@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PrincipalLogin from "./pages/principal/Login";
 import PrincipalDashboard from "./pages/principal/Dashboard";
+import PrincipalProfile from "./pages/principal/Profile";
 import StaffManagement from "./pages/principal/StaffManagement";
 import AddStaff from "./pages/principal/AddStaff";
 import EditStaff from "./pages/principal/EditStaff";
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/principal/login" element={<PrincipalLogin />} />
           <Route path="/principal/dashboard" element={<PrincipalDashboard />} />
+          <Route path="/principal/profile" element={<PrincipalProfile />} />
           <Route path="/principal/staff" element={<StaffManagement />} />
           <Route path="/principal/add-staff" element={<AddStaff />} />
           <Route path="/principal/edit-staff/:id" element={<EditStaff />} />
