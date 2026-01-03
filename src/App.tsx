@@ -38,6 +38,11 @@ import StudentMarks from "./pages/student/Marks";
 import StudentMaterials from "./pages/student/StudyMaterials";
 import StudentAnnouncements from "./pages/student/Announcements";
 import StudentFees from "./pages/student/Fees";
+import StudentAcademicCalendar from "./pages/student/AcademicCalendar";
+import StudentDailyLearning from "./pages/student/DailyLearning";
+import StudentLearnFromImage from "./pages/student/LearnFromImage";
+import StudentRewards from "./pages/student/Rewards";
+import StudentGrowthDashboard from "./pages/student/GrowthDashboard";
 import ParentDashboard from "./pages/parent/Dashboard";
 import ParentChildSelection from "./pages/parent/ChildSelection";
 import ParentAttendance from "./pages/parent/Attendance";
@@ -208,6 +213,31 @@ const App = () => (
             <Route path="/student/fees" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentFees />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/calendar" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentAcademicCalendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/daily-learning" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentDailyLearning />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/learn-image" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentLearnFromImage />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/rewards" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentRewards />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/growth" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentGrowthDashboard />
               </ProtectedRoute>
             } />
 

@@ -11,13 +11,24 @@ import {
   Menu,
   CreditCard,
   CalendarDays,
+  Lightbulb,
+  ImagePlus,
+  Trophy,
+  TrendingUp,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { studentProfile } from "@/data/studentMockData";
+import KavlionChatbot from "./KavlionChatbot";
 
 const menuItems = [
   { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard },
+  { title: "Daily Learning", url: "/student/daily-learning", icon: Lightbulb },
+  { title: "Calendar", url: "/student/calendar", icon: CalendarDays },
+  { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus },
+  { title: "Rewards", url: "/student/rewards", icon: Trophy },
+  { title: "My Growth", url: "/student/growth", icon: TrendingUp },
   { title: "Attendance", url: "/student/attendance", icon: ClipboardCheck },
   { title: "Marks", url: "/student/marks", icon: FileText },
   { title: "Study Materials", url: "/student/materials", icon: BookOpen },
@@ -27,9 +38,10 @@ const menuItems = [
 ];
 
 const bottomNavItems = [
-  { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard },
-  { title: "Attendance", url: "/student/attendance", icon: CalendarDays },
-  { title: "Marks", url: "/student/marks", icon: FileText },
+  { title: "Home", url: "/student/dashboard", icon: LayoutDashboard },
+  { title: "Learn", url: "/student/daily-learning", icon: Lightbulb },
+  { title: "Kavlion", url: "chatbot", icon: Bot },
+  { title: "Rewards", url: "/student/rewards", icon: Trophy },
   { title: "Profile", url: "/student/profile", icon: User },
 ];
 
@@ -37,6 +49,7 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [chatbotOpen, setChatbotOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -47,6 +60,14 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
   const getPageTitle = () => {
     const currentItem = menuItems.find(item => item.url === location.pathname);
     return currentItem?.title || "Dashboard";
+  };
+
+  const handleBottomNavClick = (url: string) => {
+    if (url === "chatbot") {
+      setChatbotOpen(true);
+    } else {
+      navigate(url);
+    }
   };
 
   const renderSidebarContent = () => (
@@ -66,8 +87,22 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
+      {/* Kavlion Bot Button */}
+      <div className="px-4 pt-4">
+        <Button
+          onClick={() => {
+            setChatbotOpen(true);
+            setMobileMenuOpen(false);
+          }}
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 gap-2"
+        >
+          <Bot className="w-5 h-5" />
+          Ask Kavlion
+        </Button>
+      </div>
+
       {/* Navigation Items */}
-      <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.url);
@@ -78,7 +113,7 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
                 navigate(item.url);
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-foreground hover:bg-secondary"
@@ -108,7 +143,7 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen flex bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-80 border-r flex-col">
+      <aside className="hidden lg:flex w-72 border-r flex-col">
         {renderSidebarContent()}
       </aside>
 
@@ -124,15 +159,25 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Top Header */}
-        <header className="h-16 bg-background border-b flex items-center px-4 lg:px-6 sticky top-0 z-10">
-          <button 
-            onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden mr-3 hover:bg-muted p-2 rounded-lg transition-colors"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+        <header className="h-16 bg-background border-b flex items-center justify-between px-4 lg:px-6 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden hover:bg-muted p-2 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg lg:text-xl font-bold">{getPageTitle()}</h1>
+          </div>
           
-          <h1 className="text-lg lg:text-xl font-bold">{getPageTitle()}</h1>
+          {/* Desktop Kavlion Button */}
+          <Button
+            onClick={() => setChatbotOpen(true)}
+            className="hidden lg:flex gap-2 bg-gradient-to-r from-primary to-primary/80"
+          >
+            <Bot className="w-4 h-4" />
+            Ask Kavlion
+          </Button>
         </header>
 
         {/* Main Content Area */}
@@ -144,22 +189,39 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t h-16 flex items-center justify-around px-2 z-50">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.url);
+            const active = item.url !== "chatbot" && isActive(item.url);
+            const isChatbot = item.url === "chatbot";
+            
             return (
               <button
-                key={item.url}
-                onClick={() => navigate(item.url)}
-                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors min-w-[64px] ${
-                  active ? "text-primary" : "text-muted-foreground"
+                key={item.title}
+                onClick={() => handleBottomNavClick(item.url)}
+                className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors min-w-[56px] ${
+                  isChatbot 
+                    ? "text-primary"
+                    : active 
+                      ? "text-primary" 
+                      : "text-muted-foreground"
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-medium">{item.title}</span>
+                {isChatbot ? (
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center -mt-4 shadow-lg">
+                    <Icon className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                ) : (
+                  <Icon className="w-5 h-5" />
+                )}
+                <span className={`text-xs font-medium ${isChatbot ? "mt-1" : ""}`}>
+                  {item.title}
+                </span>
               </button>
             );
           })}
         </nav>
       </div>
+
+      {/* Kavlion Chatbot */}
+      <KavlionChatbot isOpen={chatbotOpen} onClose={() => setChatbotOpen(false)} />
     </div>
   );
 }
