@@ -59,8 +59,6 @@ const secondaryMenuItems = [
 ];
 
 const bottomMenuItems = [
-  { title: "Profile", url: "/student/profile", icon: User },
-  { title: "Settings", url: "/student/profile", icon: Settings },
   { title: "Help & Support", url: "/student/profile", icon: HelpCircle },
 ];
 
