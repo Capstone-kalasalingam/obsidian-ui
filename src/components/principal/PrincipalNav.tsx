@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
   Users,
@@ -17,10 +18,12 @@ import {
   UsersRound,
   UserPlus,
   UserCheck,
+  UserCog,
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
+  { label: "Users", href: "/principal/users", icon: UserCog },
   { label: "Staff Management", href: "/principal/staff", icon: Users },
   { label: "Add Staff", href: "/principal/add-staff", icon: UserPlus },
   { label: "Classes", href: "/principal/classes", icon: BookOpen },
@@ -32,7 +35,7 @@ const navItems = [
 
 const bottomNavItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
-  { label: "Students", href: "/principal/attendance", icon: UsersRound },
+  { label: "Users", href: "/principal/users", icon: UserCog },
   { label: "Teachers", href: "/principal/staff", icon: Users },
   { label: "Profile", href: "/principal/profile", icon: User },
 ];
@@ -40,10 +43,12 @@ const bottomNavItems = [
 const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
   };
 
   const getPageTitle = () => {
