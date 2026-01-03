@@ -16,26 +16,44 @@ import {
   Trophy,
   TrendingUp,
   Bot,
-  Sparkles,
+  GraduationCap,
+  Settings,
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { studentProfile } from "@/data/studentMockData";
 import KalvionChatbot from "./KalvionChatbot";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const menuItems = [
-  { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard },
-  { title: "Daily Learning", url: "/student/daily-learning", icon: Lightbulb },
-  { title: "Calendar", url: "/student/calendar", icon: CalendarDays },
-  { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus },
-  { title: "Rewards", url: "/student/rewards", icon: Trophy },
-  { title: "My Growth", url: "/student/growth", icon: TrendingUp },
+const mainMenuItems = [
+  { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard, description: "Overview of daily learning" },
+  { title: "Academic Calendar", url: "/student/calendar", icon: CalendarDays, description: "Schedule & exams" },
+  { title: "AI Learning Guide", url: "/student/daily-learning", icon: Lightbulb, description: "Daily AI tasks" },
+  { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus, description: "AI image explanation" },
+  { title: "Study Materials", url: "/student/materials", icon: BookOpen, description: "Practice & homework" },
+  { title: "Rewards", url: "/student/rewards", icon: Trophy, description: "Badges & XP points" },
+  { title: "Growth Dashboard", url: "/student/growth", icon: TrendingUp, description: "Learning insights" },
+];
+
+const secondaryMenuItems = [
   { title: "Attendance", url: "/student/attendance", icon: ClipboardCheck },
   { title: "Marks", url: "/student/marks", icon: FileText },
-  { title: "Study Materials", url: "/student/materials", icon: BookOpen },
   { title: "Fees", url: "/student/fees", icon: CreditCard },
   { title: "Announcements", url: "/student/announcements", icon: Bell },
+];
+
+const bottomMenuItems = [
   { title: "Profile", url: "/student/profile", icon: User },
+  { title: "Settings", url: "/student/profile", icon: Settings },
+  { title: "Help & Support", url: "/student/profile", icon: HelpCircle },
 ];
 
 const bottomNavItems = [
@@ -46,19 +64,12 @@ const bottomNavItems = [
   { title: "Profile", url: "/student/profile", icon: User },
 ];
 
-const sidebarIcons = [
-  { icon: LayoutDashboard, url: "/student/dashboard", label: "Dashboard" },
-  { icon: CalendarDays, url: "/student/calendar", label: "Calendar" },
-  { icon: Lightbulb, url: "/student/daily-learning", label: "Learning" },
-  { icon: Trophy, url: "/student/rewards", label: "Rewards" },
-  { icon: User, url: "/student/profile", label: "Profile" },
-];
-
 export default function StudentNav({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -74,126 +85,195 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const renderSidebarContent = () => (
-    <>
-      {/* Sidebar Header */}
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
+  const renderSidebarContent = (collapsed = false) => (
+    <TooltipProvider delayDuration={0}>
+      {/* Logo Section */}
+      <div className={`p-5 ${collapsed ? 'px-3' : ''}`}>
+        <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
+          <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+            <GraduationCap className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <h2 className="font-semibold text-white text-sm">{studentProfile.name}</h2>
-            <p className="text-xs text-white/70">
-              Class {studentProfile.class}{studentProfile.section}
-            </p>
-          </div>
+          {!collapsed && (
+            <div>
+              <h1 className="font-bold text-white text-lg tracking-tight">Kalvion</h1>
+              <p className="text-[10px] text-white/60 font-medium tracking-wide">Learn • Grow • Succeed</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Kalvion Bot Button */}
-      <div className="px-4 pt-4">
-        <Button
-          onClick={() => {
-            setChatbotOpen(true);
-            setMobileMenuOpen(false);
-          }}
-          className="w-full bg-white/20 hover:bg-white/30 text-white border-0 gap-2 rounded-xl"
-        >
-          <Bot className="w-5 h-5" />
-          Ask Kalvion
-        </Button>
-      </div>
-
-      {/* Navigation Items */}
-      <nav className="flex-1 py-4 px-4 space-y-1 overflow-y-auto scrollbar-smooth">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.url);
-          return (
-            <button
-              key={item.title}
+      {/* AI Assistant Button */}
+      <div className={`px-3 pb-4 ${collapsed ? 'px-2' : ''}`}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
               onClick={() => {
-                navigate(item.url);
+                setChatbotOpen(true);
                 setMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                active
-                  ? "bg-white text-primary shadow-lg"
-                  : "text-white/80 hover:bg-white/10"
-              }`}
+              className={`w-full bg-gradient-to-r from-accent to-emerald-400 hover:from-accent/90 hover:to-emerald-400/90 text-white border-0 gap-2 rounded-xl shadow-lg shadow-accent/30 transition-all hover:scale-[1.02] ${collapsed ? 'px-0 justify-center' : ''}`}
             >
-              <Icon className="w-5 h-5" />
-              {item.title}
-            </button>
+              <Bot className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">Ask Kalvion</span>}
+            </Button>
+          </TooltipTrigger>
+          {collapsed && <TooltipContent side="right">Ask Kalvion AI</TooltipContent>}
+        </Tooltip>
+      </div>
+
+      {/* Main Navigation */}
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto scrollbar-smooth">
+        <div className={`text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2 ${collapsed ? 'text-center' : 'px-3'}`}>
+          {collapsed ? '•••' : 'Main Menu'}
+        </div>
+        
+        {mainMenuItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.url);
+          
+          return (
+            <Tooltip key={item.title}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    navigate(item.url);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                    active
+                      ? "bg-white text-primary shadow-lg shadow-white/20"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
+                  } ${collapsed ? 'justify-center px-0' : ''}`}
+                >
+                  <div className={`${active ? 'text-primary' : 'text-white/70 group-hover:text-white'} transition-colors`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  {!collapsed && (
+                    <div className="flex-1 text-left">
+                      <span>{item.title}</span>
+                    </div>
+                  )}
+                  {active && !collapsed && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              {collapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+            </Tooltip>
+          );
+        })}
+
+        {/* Secondary Items */}
+        <div className={`text-[10px] font-semibold text-white/40 uppercase tracking-wider mt-6 mb-2 ${collapsed ? 'text-center' : 'px-3'}`}>
+          {collapsed ? '•••' : 'Academic'}
+        </div>
+        
+        {secondaryMenuItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.url);
+          
+          return (
+            <Tooltip key={item.title}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    navigate(item.url);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                    active
+                      ? "bg-white text-primary shadow-lg shadow-white/20"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  } ${collapsed ? 'justify-center px-0' : ''}`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {!collapsed && item.title}
+                </button>
+              </TooltipTrigger>
+              {collapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+            </Tooltip>
           );
         })}
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="p-4 border-t border-white/10">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-4 px-4 text-white/80 hover:text-white hover:bg-white/10"
-          onClick={handleLogout}
-        >
-          <LogOut className="w-5 h-5" />
-          Logout
-        </Button>
+      {/* Bottom Section */}
+      <div className="p-3 border-t border-white/10 space-y-1">
+        {/* Profile Card */}
+        {!collapsed && (
+          <div className="p-3 rounded-xl bg-white/10 backdrop-blur-sm mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-emerald-400 flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                {studentProfile.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium text-sm truncate">{studentProfile.name}</p>
+                <p className="text-white/60 text-xs">Class {studentProfile.class}{studentProfile.section}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {bottomMenuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Tooltip key={item.title}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    navigate(item.url);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-white/70 hover:bg-white/10 hover:text-white transition-all ${collapsed ? 'justify-center px-0' : ''}`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {!collapsed && item.title}
+                </button>
+              </TooltipTrigger>
+              {collapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+            </Tooltip>
+          );
+        })}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleLogout}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all ${collapsed ? 'justify-center px-0' : ''}`}
+            >
+              <LogOut className="w-4 h-4" />
+              {!collapsed && 'Logout'}
+            </button>
+          </TooltipTrigger>
+          {collapsed && <TooltipContent side="right">Logout</TooltipContent>}
+        </Tooltip>
       </div>
-    </>
+    </TooltipProvider>
   );
 
   return (
     <div className="min-h-screen flex bg-gradient-soft">
-      {/* Desktop Left Icon Sidebar */}
-      <aside className="hidden lg:flex w-20 bg-gradient-to-b from-primary via-primary to-violet-700 flex-col items-center py-6 rounded-r-3xl shadow-2xl">
-        {/* Logo */}
-        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-8">
-          <Sparkles className="w-6 h-6 text-white" />
-        </div>
-
-        {/* Icon Navigation */}
-        <nav className="flex-1 flex flex-col items-center gap-2">
-          {sidebarIcons.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.url);
-            return (
-              <button
-                key={item.url}
-                onClick={() => navigate(item.url)}
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all group relative ${
-                  active
-                    ? "bg-white text-primary shadow-lg"
-                    : "text-white/70 hover:bg-white/15 hover:text-white"
-                }`}
-                title={item.label}
-              >
-                <Icon className="w-5 h-5" />
-                {/* Tooltip */}
-                <span className="absolute left-16 bg-foreground text-background px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* AI Bot Button */}
+      {/* Desktop Sidebar */}
+      <aside 
+        className={`hidden lg:flex flex-col bg-gradient-to-b from-[#6366f1] via-[#7c3aed] to-[#6366f1] transition-all duration-300 ease-in-out rounded-r-3xl shadow-2xl shadow-primary/20 relative ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        {/* Collapse Toggle */}
         <button
-          onClick={() => setChatbotOpen(true)}
-          className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform mt-4"
-          title="Ask Kalvion"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white rounded-full shadow-lg flex items-center justify-center text-primary hover:scale-110 transition-transform z-10"
         >
-          <Bot className="w-5 h-5" />
+          {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
+
+        {renderSidebarContent(sidebarCollapsed)}
       </aside>
 
       {/* Mobile Sidebar Drawer */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-primary via-primary to-violet-700 border-0">
+        <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-[#6366f1] via-[#7c3aed] to-[#6366f1] border-0">
           <div className="flex flex-col h-full">
-            {renderSidebarContent()}
+            {renderSidebarContent(false)}
           </div>
         </SheetContent>
       </Sheet>
@@ -209,18 +289,21 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#7c3aed] flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-bold text-foreground">Kalvion</span>
             </div>
           </div>
           
           <Button
             onClick={() => setChatbotOpen(true)}
             size="sm"
-            className="gap-2 bg-primary rounded-xl"
+            className="gap-2 bg-gradient-to-r from-accent to-emerald-400 rounded-xl shadow-lg shadow-accent/30"
           >
             <Bot className="w-4 h-4" />
-            Kalvion
+            Ask AI
           </Button>
         </header>
 
@@ -249,7 +332,7 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
                 }`}
               >
                 {isChatbot ? (
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center -mt-8 shadow-xl border-4 border-white">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6366f1] to-[#7c3aed] flex items-center justify-center -mt-8 shadow-xl border-4 border-white">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 ) : (
