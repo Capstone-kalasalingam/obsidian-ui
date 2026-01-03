@@ -71,7 +71,7 @@ const Login = () => {
         </Link>
         <Card className="w-full shadow-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">SchoolHub Login</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Kalvion Login</CardTitle>
           <CardDescription className="text-center">
             Select your role and enter credentials to continue
           </CardDescription>

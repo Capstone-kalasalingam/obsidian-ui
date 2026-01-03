@@ -118,7 +118,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
         {/* Logo - Hidden on mobile, shown on desktop */}
         <Link to="/principal/dashboard" className="hidden md:flex items-center gap-2">
           <GraduationCap className="w-6 h-6 text-primary" />
-          <span className="font-semibold text-base">SchoolHub</span>
+          <span className="font-semibold text-base">Kalvion</span>
         </Link>
 
         {/* Page Title - Centered on mobile */}

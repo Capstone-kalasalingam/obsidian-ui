@@ -28,7 +28,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">SchoolHub</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Kalvion</h3>
             <p className="text-background/80 mb-4 sm:mb-6 max-w-sm text-sm sm:text-base">
               Empowering schools with innovative technology for better learning outcomes
               and seamless management.
@@ -36,7 +36,7 @@ const Footer = () => {
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center gap-2 sm:gap-3 text-background/80 text-sm sm:text-base">
                 <Mail className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span>contact@schoolhub.com</span>
+                <span>contact@kalvion.com</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 text-background/80 text-sm sm:text-base">
                 <Phone className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
@@ -101,7 +101,7 @@ const Footer = () => {
 
         <div className="border-t border-background/20 pt-6 sm:pt-8">
           <p className="text-center text-background/80 text-xs sm:text-sm">
-            © {new Date().getFullYear()} SchoolHub. All rights reserved.
+            © {new Date().getFullYear()} Kalvion. All rights reserved.
           </p>
         </div>
       </div>
