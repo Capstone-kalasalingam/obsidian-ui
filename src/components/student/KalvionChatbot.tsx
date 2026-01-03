@@ -12,18 +12,18 @@ interface Message {
   imageUrl?: string;
 }
 
-interface KavlionChatbotProps {
+interface KalvionChatbotProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/student-ai-chat`;
 
-export default function KavlionChatbot({ isOpen, onClose }: KavlionChatbotProps) {
+export default function KalvionChatbot({ isOpen, onClose }: KalvionChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! 👋 I'm Kavlion, your study buddy. I'm here to help you understand concepts and think through problems. What would you like to learn today?"
+      content: "Hi! 👋 I'm Kalvion, your study buddy. I'm here to help you understand concepts and think through problems. What would you like to learn today?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -56,7 +56,7 @@ export default function KavlionChatbot({ isOpen, onClose }: KavlionChatbotProps)
   const clearChat = () => {
     setMessages([{
       role: "assistant",
-      content: "Hi! 👋 I'm Kavlion, your study buddy. I'm here to help you understand concepts and think through problems. What would you like to learn today?"
+      content: "Hi! 👋 I'm Kalvion, your study buddy. I'm here to help you understand concepts and think through problems. What would you like to learn today?"
     }]);
   };
 
@@ -163,15 +163,15 @@ export default function KavlionChatbot({ isOpen, onClose }: KavlionChatbotProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:inset-auto lg:right-4 lg:bottom-4 lg:w-[420px] lg:h-[600px] lg:rounded-2xl bg-background border shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
+    <div className="fixed inset-0 z-50 lg:inset-auto lg:right-4 lg:bottom-4 lg:w-[420px] lg:h-[600px] lg:rounded-3xl bg-background border-0 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
       {/* Header */}
-      <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-primary via-primary to-violet-600 text-primary-foreground px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
             <Bot className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-semibold">Kavlion</h3>
+            <h3 className="font-bold text-lg">Kalvion</h3>
             <p className="text-xs opacity-80">Your AI Study Buddy</p>
           </div>
         </div>

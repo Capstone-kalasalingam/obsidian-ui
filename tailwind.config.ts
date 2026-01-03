@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,12 +51,16 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         "soft-bg": "hsl(var(--soft-bg))",
-        "light-gray": "hsl(var(--light-gray))",
-        neutral: "hsl(var(--neutral))",
+        "soft-purple": "hsl(var(--soft-purple))",
+        "soft-green": "hsl(var(--soft-green))",
+        "soft-yellow": "hsl(var(--soft-yellow))",
+        "soft-pink": "hsl(var(--soft-pink))",
       },
       boxShadow: {
+        soft: "var(--shadow-soft)",
         card: "var(--shadow-card)",
         hover: "var(--shadow-hover)",
+        glow: "var(--shadow-glow)",
       },
       borderRadius: {
         lg: "var(--radius)",
