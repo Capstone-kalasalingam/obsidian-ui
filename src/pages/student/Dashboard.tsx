@@ -34,31 +34,55 @@ const activityData = [
   { day: "Sun", practice: 50, revision: 40 },
 ];
 
-// Today's courses
+// Today's courses (School Subjects)
 const todaysCourses = [
   {
     id: 1,
-    title: "Biology Molecular",
-    topics: ["Genetics", "Cells", "Photosynthesis"],
-    progress: 72,
-    icon: "🧬",
-    gradient: "from-emerald-500 to-teal-600"
+    title: "Telugu",
+    topics: ["Grammar", "Poetry", "Comprehension"],
+    progress: 78,
+    icon: "📖",
+    gradient: "from-orange-500 to-red-600"
   },
   {
     id: 2,
-    title: "Core Literacy",
-    topics: ["Grammar", "Essay Writing", "Vocabulary"],
-    progress: 64,
-    icon: "📚",
+    title: "Hindi",
+    topics: ["Vyakaran", "Sahitya", "Lekhan"],
+    progress: 65,
+    icon: "📝",
     gradient: "from-amber-500 to-orange-600"
   },
   {
     id: 3,
-    title: "Mathematics",
-    topics: ["Algebra", "Geometry", "Calculus"],
-    progress: 85,
-    icon: "📐",
+    title: "English",
+    topics: ["Grammar", "Literature", "Writing"],
+    progress: 82,
+    icon: "📚",
     gradient: "from-blue-500 to-indigo-600"
+  },
+  {
+    id: 4,
+    title: "Mathematics",
+    topics: ["Algebra", "Geometry", "Arithmetic"],
+    progress: 70,
+    icon: "📐",
+    gradient: "from-violet-500 to-purple-600"
+  },
+  {
+    id: 5,
+    title: "Science",
+    topics: ["Physics", "Chemistry", "Biology"],
+    progress: 75,
+    icon: "🔬",
+    gradient: "from-emerald-500 to-teal-600"
+  },
+  {
+    id: 6,
+    title: "Social Studies",
+    topics: ["History", "Geography", "Civics"],
+    progress: 68,
+    icon: "🌍",
+    gradient: "from-cyan-500 to-blue-600"
   }
 ];
 
@@ -67,7 +91,6 @@ const statsData = [
   { label: "Streak", value: "12", unit: "days", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10" },
   { label: "Tasks Done", value: "48", unit: "this week", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
   { label: "XP Points", value: "2,400", unit: "earned", icon: Zap, color: "text-primary", bg: "bg-primary/10" },
-  { label: "Rank", value: "#5", unit: "in class", icon: Trophy, color: "text-amber-500", bg: "bg-amber-500/10" },
 ];
 
 // Quick actions
@@ -121,67 +144,31 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Today's Courses */}
+              {/* My Courses (Subjects) */}
               <div>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <BookOpen className="w-5 h-5 text-primary" />
-                  Today's Courses
+                  My Courses
                 </h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {todaysCourses.map((course) => (
                     <Card key={course.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-card">
-                      <CardContent className="p-5">
-                        {/* Circular Progress */}
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-3xl">{course.icon}</span>
-                          <div className="relative w-14 h-14">
-                            <svg className="w-14 h-14 -rotate-90">
-                              <circle
-                                cx="28"
-                                cy="28"
-                                r="24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                className="text-muted"
-                              />
-                              <circle
-                                cx="28"
-                                cy="28"
-                                r="24"
-                                fill="none"
-                                stroke="url(#progressGradient)"
-                                strokeWidth="4"
-                                strokeDasharray={`${course.progress * 1.51} 151`}
-                                strokeLinecap="round"
-                              />
-                              <defs>
-                                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                  <stop offset="0%" stopColor="hsl(var(--primary))" />
-                                  <stop offset="100%" stopColor="hsl(var(--accent))" />
-                                </linearGradient>
-                              </defs>
-                            </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                              {course.progress}%
-                            </span>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${course.gradient} flex items-center justify-center text-lg shadow-md`}>
+                            {course.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground text-sm truncate">{course.title}</h3>
+                            <p className="text-xs text-muted-foreground">{course.progress}% complete</p>
                           </div>
                         </div>
-
-                        <h3 className="font-semibold text-foreground mb-2">{course.title}</h3>
-                        <div className="flex flex-wrap gap-1 mb-4">
-                          {course.topics.map((topic, i) => (
-                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                              {topic}
-                            </span>
-                          ))}
+                        <div className="bg-muted rounded-full h-1.5 overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full bg-gradient-to-r ${course.gradient} transition-all`}
+                            style={{ width: `${course.progress}%` }}
+                          />
                         </div>
-                        <Button 
-                          size="sm" 
-                          className={`w-full rounded-xl bg-gradient-to-r ${course.gradient} text-white border-0 hover:opacity-90`}
-                        >
-                          Continue Learning
-                        </Button>
                       </CardContent>
                     </Card>
                   ))}
@@ -262,26 +249,52 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Right Column - XP & Achievements */}
-            <div className="space-y-6">
-              {/* XP Card */}
+            {/* Right Column - Student Badge & XP */}
+            <div className="space-y-4">
+              {/* Student Badge Card */}
               <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary via-violet-600 to-indigo-700 text-white">
-                <CardContent className="p-6 relative">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-                  <div className="flex items-center justify-between mb-4">
+                <CardContent className="p-5 relative">
+                  <div className="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <GraduationCap className="w-7 h-7" />
+                    </div>
                     <div>
-                      <p className="text-4xl font-bold">2,400</p>
+                      <h4 className="font-bold text-lg">{studentProfile.name}</h4>
+                      <p className="text-white/70 text-sm">{studentProfile.class} • Roll: {studentProfile.rollNumber}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-center">
+                    <div className="bg-white/10 rounded-xl py-2">
+                      <p className="text-lg font-bold">2024-25</p>
+                      <p className="text-[10px] text-white/60 uppercase">Academic Year</p>
+                    </div>
+                    <div className="bg-white/10 rounded-xl py-2">
+                      <p className="text-lg font-bold">Active</p>
+                      <p className="text-[10px] text-white/60 uppercase">Status</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* XP Points Card */}
+              <Card className="overflow-hidden border-0 bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                <CardContent className="p-5 relative">
+                  <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-3xl font-bold">2,400</p>
                       <p className="text-white/60 text-sm">XP Points</p>
                     </div>
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-3xl">💎</span>
+                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <span className="text-2xl">💎</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="rounded-xl bg-white/20 text-white border-0 hover:bg-white/30">
+                    <Button size="sm" variant="secondary" className="rounded-xl bg-white/20 text-white border-0 hover:bg-white/30 flex-1">
                       Redeem
                     </Button>
-                    <Button size="sm" className="rounded-xl bg-accent text-white border-0 hover:bg-accent/90">
+                    <Button size="sm" className="rounded-xl bg-accent text-white border-0 hover:bg-accent/90 flex-1">
                       <Zap className="w-4 h-4 mr-1" />
                       Earn More
                     </Button>
@@ -289,59 +302,38 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Daily Challenge */}
-              <Card className="border-0 bg-gradient-to-br from-amber-400 to-orange-500 text-white overflow-hidden">
-                <CardContent className="p-5 relative">
-                  <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Target className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Daily Challenge</h4>
-                      <p className="text-xs text-white/70">Complete 5 lessons today</p>
-                    </div>
-                  </div>
-                  <div className="bg-white/20 rounded-full h-2 overflow-hidden">
-                    <div className="bg-white h-full rounded-full w-3/5 transition-all" />
-                  </div>
-                  <p className="text-xs mt-2 text-white/80">3 of 5 completed</p>
-                </CardContent>
-              </Card>
-
               {/* Streak Card */}
-              <Card className="border-0 bg-gradient-to-br from-rose-500 to-pink-600 text-white overflow-hidden">
-                <CardContent className="p-5 relative">
-                  <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-lg" />
+              <Card className="border-0 bg-gradient-to-br from-amber-400 to-orange-500 text-white overflow-hidden">
+                <CardContent className="p-4 relative">
+                  <div className="absolute -right-4 -top-4 w-14 h-14 bg-white/10 rounded-full blur-lg" />
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Flame className="w-8 h-8" />
+                    <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                      <Flame className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold">12 Days</p>
-                      <p className="text-sm text-white/70">Learning Streak 🔥</p>
+                      <p className="text-2xl font-bold">12 Days</p>
+                      <p className="text-sm text-white/70">Learning Streak</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Achievements */}
+              {/* Daily Challenge */}
               <Card className="border-0 bg-card">
-                <CardContent className="p-5">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-amber-500" />
-                    Recent Badges
-                  </h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    {['🏆', '⭐', '🎯', '🚀', '💡', '📚', '🎓', '🌟'].map((badge, i) => (
-                      <div 
-                        key={i}
-                        className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xl hover:scale-110 transition-transform cursor-pointer"
-                      >
-                        {badge}
-                      </div>
-                    ))}
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                      <Target className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm">Daily Challenge</h4>
+                      <p className="text-xs text-muted-foreground">Complete 5 lessons</p>
+                    </div>
                   </div>
+                  <div className="bg-muted rounded-full h-2 overflow-hidden">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full w-3/5" />
+                  </div>
+                  <p className="text-xs mt-2 text-muted-foreground">3 of 5 completed</p>
                 </CardContent>
               </Card>
             </div>
