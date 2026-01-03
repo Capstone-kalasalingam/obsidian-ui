@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -38,6 +39,7 @@ import PageTransition from "@/components/PageTransition";
 
 const mainMenuItems = [
   { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard, description: "Overview of daily learning" },
+  { title: "Timetable", url: "/student/timetable", icon: Clock, description: "Weekly class schedule" },
   { title: "Academic Calendar", url: "/student/calendar", icon: CalendarDays, description: "Schedule & exams" },
   { title: "AI Learning Guide", url: "/student/daily-learning", icon: Lightbulb, description: "Daily AI tasks" },
   { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus, description: "AI image explanation" },

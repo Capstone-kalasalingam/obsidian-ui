@@ -1,3 +1,14 @@
+export const schoolInfo = {
+  name: "Sri Vidya Niketan High School",
+  address: "Plot No. 123, Education Lane, Kukatpally, Hyderabad - 500072",
+  phone: "+91 40 2345 6789",
+  email: "info@srividyaniketan.edu.in",
+  website: "www.srividyaniketan.edu.in",
+  principal: "Dr. K. Rajendra Prasad",
+  established: "1985",
+  affiliatedTo: "Telangana State Board of Secondary Education",
+};
+
 export const studentProfile = {
   name: "Rahul Sharma",
   rollNumber: "2024001",
@@ -8,6 +19,55 @@ export const studentProfile = {
   attendancePercentage: 92.5,
   parentName: "Mr. Suresh Sharma",
   parentPhone: "+91 98765 43211",
+};
+
+export const weeklyTimetable = {
+  Monday: [
+    { period: 1, time: "9:00 - 9:45", subject: "Telugu", teacher: "Mrs. Lakshmi" },
+    { period: 2, time: "9:45 - 10:30", subject: "Hindi", teacher: "Mrs. Sunita" },
+    { period: 3, time: "10:45 - 11:30", subject: "English", teacher: "Mr. Thomas" },
+    { period: 4, time: "11:30 - 12:15", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 5, time: "1:00 - 1:45", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 6, time: "1:45 - 2:30", subject: "Social Studies", teacher: "Mr. Kiran" },
+  ],
+  Tuesday: [
+    { period: 1, time: "9:00 - 9:45", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 2, time: "9:45 - 10:30", subject: "English", teacher: "Mr. Thomas" },
+    { period: 3, time: "10:45 - 11:30", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 4, time: "11:30 - 12:15", subject: "Telugu", teacher: "Mrs. Lakshmi" },
+    { period: 5, time: "1:00 - 1:45", subject: "Hindi", teacher: "Mrs. Sunita" },
+    { period: 6, time: "1:45 - 2:30", subject: "Physical Education", teacher: "Mr. Raju" },
+  ],
+  Wednesday: [
+    { period: 1, time: "9:00 - 9:45", subject: "English", teacher: "Mr. Thomas" },
+    { period: 2, time: "9:45 - 10:30", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 3, time: "10:45 - 11:30", subject: "Hindi", teacher: "Mrs. Sunita" },
+    { period: 4, time: "11:30 - 12:15", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 5, time: "1:00 - 1:45", subject: "Social Studies", teacher: "Mr. Kiran" },
+    { period: 6, time: "1:45 - 2:30", subject: "Telugu", teacher: "Mrs. Lakshmi" },
+  ],
+  Thursday: [
+    { period: 1, time: "9:00 - 9:45", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 2, time: "9:45 - 10:30", subject: "Telugu", teacher: "Mrs. Lakshmi" },
+    { period: 3, time: "10:45 - 11:30", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 4, time: "11:30 - 12:15", subject: "English", teacher: "Mr. Thomas" },
+    { period: 5, time: "1:00 - 1:45", subject: "Hindi", teacher: "Mrs. Sunita" },
+    { period: 6, time: "1:45 - 2:30", subject: "Art & Craft", teacher: "Mrs. Anjali" },
+  ],
+  Friday: [
+    { period: 1, time: "9:00 - 9:45", subject: "Hindi", teacher: "Mrs. Sunita" },
+    { period: 2, time: "9:45 - 10:30", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 3, time: "10:45 - 11:30", subject: "Social Studies", teacher: "Mr. Kiran" },
+    { period: 4, time: "11:30 - 12:15", subject: "Telugu", teacher: "Mrs. Lakshmi" },
+    { period: 5, time: "1:00 - 1:45", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 6, time: "1:45 - 2:30", subject: "English", teacher: "Mr. Thomas" },
+  ],
+  Saturday: [
+    { period: 1, time: "9:00 - 9:45", subject: "Mathematics", teacher: "Mr. Ramesh" },
+    { period: 2, time: "9:45 - 10:30", subject: "Science", teacher: "Mrs. Priya" },
+    { period: 3, time: "10:45 - 11:30", subject: "English", teacher: "Mr. Thomas" },
+    { period: 4, time: "11:30 - 12:15", subject: "Library", teacher: "Mrs. Kavitha" },
+  ],
 };
 
 export const dashboardSummary = {
