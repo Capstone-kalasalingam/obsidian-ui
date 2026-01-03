@@ -47,6 +47,7 @@ const mainMenuItems = [
   { title: "Study Materials", url: "/student/materials", icon: BookOpen, description: "Practice & homework" },
   { title: "Homework", url: "/student/homework", icon: ClipboardList, description: "Track assignments" },
   { title: "Rewards", url: "/student/rewards", icon: Trophy, description: "Badges & XP points" },
+  { title: "Leaderboard", url: "/student/leaderboard", icon: Trophy, description: "Class rankings" },
   { title: "Growth Dashboard", url: "/student/growth", icon: TrendingUp, description: "Learning insights" },
 ];
 
