@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -21,6 +21,8 @@ import {
   HelpCircle,
   ChevronLeft,
   ChevronRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -32,6 +34,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import PageTransition from "@/components/PageTransition";
 
 const mainMenuItems = [
   { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard, description: "Overview of daily learning" },
@@ -70,6 +73,22 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -234,6 +253,20 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
           );
         })}
 
+        {/* Dark Mode Toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={toggleDarkMode}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-white/70 hover:bg-white/10 hover:text-white transition-all ${collapsed ? 'justify-center px-0' : ''}`}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {!collapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
+            </button>
+          </TooltipTrigger>
+          {collapsed && <TooltipContent side="right">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</TooltipContent>}
+        </Tooltip>
+
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -309,11 +342,13 @@ export default function StudentNav({ children }: { children: React.ReactNode }) 
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-auto pb-20 lg:pb-0">
-          {children}
+          <PageTransition key={location.pathname}>
+            {children}
+          </PageTransition>
         </main>
 
         {/* Bottom Navigation - Mobile only */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t h-20 flex items-center justify-around px-2 z-50 rounded-t-3xl shadow-lg">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t h-20 flex items-center justify-around px-2 z-50 rounded-t-3xl shadow-lg">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const active = item.url !== "chatbot" && isActive(item.url);

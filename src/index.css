@@ -57,6 +57,49 @@
     --gradient-warm: linear-gradient(135deg, hsl(45 90% 55%), hsl(30 85% 55%));
     --gradient-cool: linear-gradient(135deg, hsl(200 80% 55%), hsl(220 75% 50%));
   }
+
+  .dark {
+    --background: 240 10% 8%;
+    --foreground: 240 10% 95%;
+
+    --card: 240 10% 12%;
+    --card-foreground: 240 10% 95%;
+
+    --popover: 240 10% 12%;
+    --popover-foreground: 240 10% 95%;
+
+    --primary: 258 70% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 10% 18%;
+    --secondary-foreground: 240 10% 95%;
+
+    --muted: 240 10% 20%;
+    --muted-foreground: 240 8% 60%;
+
+    --accent: 158 64% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
+    --ring: 258 70% 65%;
+
+    /* Premium Design Tokens - Dark */
+    --soft-bg: 240 10% 6%;
+    --soft-purple: 258 40% 15%;
+    --soft-green: 158 40% 12%;
+    --soft-yellow: 45 40% 12%;
+    --soft-pink: 330 40% 14%;
+    
+    /* Neumorphism Shadows - Dark */
+    --shadow-soft: 0 4px 20px -4px hsl(258 60% 55% / 0.2), 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 32px -8px hsl(258 60% 55% / 0.15), 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-hover: 0 12px 40px -8px hsl(258 60% 55% / 0.25), 0 6px 20px -6px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 40px hsl(258 60% 55% / 0.25);
+  }
 }
 
 @layer base {
