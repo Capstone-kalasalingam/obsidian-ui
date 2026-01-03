@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  ClipboardList,
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ const mainMenuItems = [
   { title: "AI Learning Guide", url: "/student/daily-learning", icon: Lightbulb, description: "Daily AI tasks" },
   { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus, description: "AI image explanation" },
   { title: "Study Materials", url: "/student/materials", icon: BookOpen, description: "Practice & homework" },
+  { title: "Homework", url: "/student/homework", icon: ClipboardList, description: "Track assignments" },
   { title: "Rewards", url: "/student/rewards", icon: Trophy, description: "Badges & XP points" },
   { title: "Growth Dashboard", url: "/student/growth", icon: TrendingUp, description: "Learning insights" },
 ];
