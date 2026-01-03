@@ -5,10 +5,10 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header with SchoolHub and Login */}
+      {/* Header with Kalvion and Login */}
       <header className="flex items-center justify-between p-4 md:p-6">
         <h2 className="text-xl md:text-2xl font-bold text-primary">
-          SchoolHub
+          Kalvion
         </h2>
       </header>
 
