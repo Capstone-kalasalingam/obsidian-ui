@@ -74,6 +74,70 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_learning_tasks: {
+        Row: {
+          class_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          estimated_minutes: number | null
+          id: string
+          is_active: boolean | null
+          subject_id: string
+          task_date: string
+          task_type: Database["public"]["Enums"]["task_type"] | null
+          title: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          subject_id: string
+          task_date: string
+          task_type?: Database["public"]["Enums"]["task_type"] | null
+          title: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          subject_id?: string
+          task_date?: string
+          task_type?: Database["public"]["Enums"]["task_type"] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_learning_tasks_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_learning_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_learning_tasks_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parents: {
         Row: {
           created_at: string | null
@@ -136,6 +200,85 @@ export type Database = {
         }
         Relationships: []
       }
+      student_daily_activities: {
+        Row: {
+          activity_date: string
+          created_at: string | null
+          id: string
+          student_id: string
+          tasks_completed: number | null
+          time_spent_minutes: number | null
+        }
+        Insert: {
+          activity_date?: string
+          created_at?: string | null
+          id?: string
+          student_id: string
+          tasks_completed?: number | null
+          time_spent_minutes?: number | null
+        }
+        Update: {
+          activity_date?: string
+          created_at?: string | null
+          id?: string
+          student_id?: string
+          tasks_completed?: number | null
+          time_spent_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_daily_activities_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_learning_profiles: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          current_streak_days: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak_days: number | null
+          student_id: string
+          total_tasks_completed: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          current_streak_days?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak_days?: number | null
+          student_id: string
+          total_tasks_completed?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          current_streak_days?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak_days?: number | null
+          student_id?: string
+          total_tasks_completed?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_learning_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_parents: {
         Row: {
           created_at: string | null
@@ -174,6 +317,108 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_subject_proficiencies: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          proficiency_level:
+            | Database["public"]["Enums"]["proficiency_level"]
+            | null
+          score: number | null
+          student_id: string
+          subject_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          proficiency_level?:
+            | Database["public"]["Enums"]["proficiency_level"]
+            | null
+          score?: number | null
+          student_id: string
+          subject_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          proficiency_level?:
+            | Database["public"]["Enums"]["proficiency_level"]
+            | null
+          score?: number | null
+          student_id?: string
+          subject_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_subject_proficiencies_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_subject_proficiencies_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_task_completions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["task_status"] | null
+          student_id: string
+          task_id: string
+          time_spent_minutes: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          student_id: string
+          task_id: string
+          time_spent_minutes?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          student_id?: string
+          task_id?: string
+          time_spent_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_task_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "daily_learning_tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -371,6 +616,9 @@ export type Database = {
     }
     Enums: {
       app_role: "student" | "parent" | "teacher" | "school_admin"
+      proficiency_level: "weak" | "average" | "strong"
+      task_status: "pending" | "in_progress" | "completed" | "skipped"
+      task_type: "teacher_defined" | "syllabus_based"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -499,6 +747,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["student", "parent", "teacher", "school_admin"],
+      proficiency_level: ["weak", "average", "strong"],
+      task_status: ["pending", "in_progress", "completed", "skipped"],
+      task_type: ["teacher_defined", "syllabus_based"],
     },
   },
 } as const
