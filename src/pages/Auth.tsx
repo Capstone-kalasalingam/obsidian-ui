@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, AppRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,24 +16,30 @@ const loginSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { signIn, role } = useAuth();
+  const { signIn, role, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
-  const redirectByRole = (userRole: AppRole | null) => {
+  const redirectByRole = (userRole: AppRole) => {
     const routes: Record<AppRole, string> = {
       school_admin: '/principal/dashboard',
       teacher: '/teacher/dashboard',
       student: '/student/dashboard',
       parent: '/parent/dashboard',
     };
-    if (userRole) {
-      navigate(routes[userRole]);
-    }
+    navigate(routes[userRole]);
   };
+
+  // Redirect when role becomes available after successful login
+  useEffect(() => {
+    if (loginSuccess && role && user) {
+      redirectByRole(role);
+    }
+  }, [loginSuccess, role, user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,18 +70,15 @@ const Auth = () => {
         } else {
           toast.error(error.message);
         }
+        setLoading(false);
         return;
       }
 
       toast.success('Welcome back!');
-      
-      // Wait a bit for role to be fetched then redirect
-      setTimeout(() => {
-        redirectByRole(role);
-      }, 500);
+      setLoginSuccess(true);
+      // Loading state stays true until redirect happens via useEffect
     } catch (error) {
       toast.error('An unexpected error occurred. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
