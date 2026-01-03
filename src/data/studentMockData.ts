@@ -12,7 +12,7 @@ export const schoolInfo = {
 export const studentProfile = {
   name: "Rahul Sharma",
   rollNumber: "2024001",
-  class: "10",
+  class: "Class 10-A",
   section: "A",
   email: "rahul.sharma@school.edu",
   phone: "+91 98765 43210",
