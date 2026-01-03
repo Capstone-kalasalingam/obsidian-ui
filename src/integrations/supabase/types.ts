@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_calendar_events: {
+        Row: {
+          class_name: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          event_date: string
+          event_type: string
+          id: string
+          school_id: string | null
+          subject: string | null
+          title: string
+        }
+        Insert: {
+          class_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          school_id?: string | null
+          subject?: string | null
+          title: string
+        }
+        Update: {
+          class_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          school_id?: string | null
+          subject?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       class_subjects: {
         Row: {
           class_id: string
@@ -200,6 +242,30 @@ export type Database = {
         }
         Relationships: []
       }
+      student_ai_chats: {
+        Row: {
+          created_at: string
+          id: string
+          messages: Json | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          messages?: Json | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          messages?: Json | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       student_daily_activities: {
         Row: {
           activity_date: string
@@ -320,6 +386,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_reflections: {
+        Row: {
+          confused_about: string | null
+          created_at: string
+          id: string
+          student_id: string
+          understood_well: string | null
+          want_to_improve: string | null
+          week_start: string
+        }
+        Insert: {
+          confused_about?: string | null
+          created_at?: string
+          id?: string
+          student_id: string
+          understood_well?: string | null
+          want_to_improve?: string | null
+          week_start: string
+        }
+        Update: {
+          confused_about?: string | null
+          created_at?: string
+          id?: string
+          student_id?: string
+          understood_well?: string | null
+          want_to_improve?: string | null
+          week_start?: string
+        }
+        Relationships: []
       }
       student_subject_proficiencies: {
         Row: {
