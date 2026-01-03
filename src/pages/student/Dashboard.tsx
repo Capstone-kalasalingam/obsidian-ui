@@ -281,7 +281,7 @@ const Dashboard = () => {
               <Card className="overflow-hidden border-0 bg-gradient-to-br from-violet-500 to-purple-600 text-white">
                 <CardContent className="p-5 relative">
                   <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between">
                     <div>
                       <p className="text-3xl font-bold">2,400</p>
                       <p className="text-white/60 text-sm">XP Points</p>
@@ -289,15 +289,6 @@ const Dashboard = () => {
                     <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                       <span className="text-2xl">💎</span>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="rounded-xl bg-white/20 text-white border-0 hover:bg-white/30 flex-1">
-                      Redeem
-                    </Button>
-                    <Button size="sm" className="rounded-xl bg-accent text-white border-0 hover:bg-accent/90 flex-1">
-                      <Zap className="w-4 h-4 mr-1" />
-                      Earn More
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
