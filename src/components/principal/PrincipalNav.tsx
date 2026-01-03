@@ -41,7 +41,7 @@ const navItems = [
   { label: "Users", href: "/principal/users", icon: UserCog },
   { label: "Staff Management", href: "/principal/staff", icon: Users },
   { label: "Add Staff", href: "/principal/add-staff", icon: UserPlus },
-  { label: "Classes", href: "/principal/classes", icon: BookOpen },
+  { label: "Classes & Subjects", href: "/principal/classes", icon: BookOpen },
   { label: "Assign Teacher", href: "/principal/assign-class-teacher", icon: UserCheck },
   { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },

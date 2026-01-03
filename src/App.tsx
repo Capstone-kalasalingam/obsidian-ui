@@ -15,6 +15,7 @@ import AddStaff from "./pages/principal/AddStaff";
 import EditStaff from "./pages/principal/EditStaff";
 import AssignClassTeacher from "./pages/principal/AssignClassTeacher";
 import ClassManagement from "./pages/principal/ClassManagement";
+import ClassSubjectManagement from "./pages/principal/ClassSubjectManagement";
 import ClassStudents from "./pages/principal/ClassStudents";
 import AttendanceOverview from "./pages/principal/AttendanceOverview";
 import Announcements from "./pages/principal/Announcements";
@@ -92,7 +93,7 @@ const App = () => (
             } />
             <Route path="/principal/classes" element={
               <ProtectedRoute allowedRoles={['school_admin']}>
-                <ClassManagement />
+                <ClassSubjectManagement />
               </ProtectedRoute>
             } />
             <Route path="/principal/classes/:className" element={
