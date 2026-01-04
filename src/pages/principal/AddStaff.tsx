@@ -7,12 +7,15 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, User, Camera, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddStaff = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    mobile: "",
+    email: "",
+    phone: "",
+    password: "",
   });
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,24 +35,38 @@ const AddStaff = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.mobile) {
+    if (!formData.name || !formData.email || !formData.password) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setShowSuccess(true);
-    
-    // Show success animation then navigate
-    setTimeout(() => {
-      toast.success("Staff member added successfully!");
-      navigate("/principal/staff");
-    }, 1500);
+    try {
+      // Create user via edge function
+      const { data, error } = await supabase.functions.invoke("create-user", {
+        body: {
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.name,
+          phone: formData.phone,
+          role: "teacher",
+        },
+      });
+
+      if (error) throw error;
+
+      setShowSuccess(true);
+      
+      setTimeout(() => {
+        toast.success("Staff member added successfully!");
+        navigate("/principal/staff");
+      }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add staff member");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -140,7 +157,7 @@ const AddStaff = () => {
               <Label htmlFor="name" className="sr-only">Name</Label>
               <Input
                 id="name"
-                placeholder="Name"
+                placeholder="Full Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="h-14 text-base rounded-2xl bg-background border-border"
@@ -148,17 +165,44 @@ const AddStaff = () => {
               />
             </div>
 
-            {/* Mobile Number Field */}
+            {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="mobile" className="sr-only">Mobile Number</Label>
+              <Label htmlFor="email" className="sr-only">Email</Label>
               <Input
-                id="mobile"
-                type="tel"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                id="email"
+                type="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="h-14 text-base rounded-2xl bg-background border-border"
                 required
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="sr-only">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Temporary Password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="h-14 text-base rounded-2xl bg-background border-border"
+                required
+              />
+            </div>
+
+            {/* Phone Field */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="sr-only">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="Phone Number (Optional)"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="h-14 text-base rounded-2xl bg-background border-border"
               />
             </div>
 

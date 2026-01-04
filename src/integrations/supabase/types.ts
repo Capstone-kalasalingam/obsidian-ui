@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+          target: string
+          target_details: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+          target: string
+          target_details?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+          target?: string
+          target_details?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       class_subjects: {
         Row: {
           class_id: string

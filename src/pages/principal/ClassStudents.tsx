@@ -1,21 +1,22 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Users, User } from "lucide-react";
-import { mockClasses, Class } from "@/data/mockData";
+import { useClasses } from "@/hooks/usePrincipalData";
 
 const ClassStudents = () => {
   const navigate = useNavigate();
   const { className } = useParams<{ className: string }>();
-  
+  const { classes, loading } = useClasses();
+
   // Filter sections for this class
-  const classSections = mockClasses.filter(
+  const classSections = classes.filter(
     (cls) => cls.name.toLowerCase().replace(/\s+/g, '-') === className
   );
 
-  if (classSections.length === 0) {
+  if (!loading && classSections.length === 0) {
     return (
       <PrincipalNav>
         <div className="px-4 py-6">
@@ -33,7 +34,7 @@ const ClassStudents = () => {
     );
   }
 
-  const displayClassName = classSections[0].name;
+  const displayClassName = classSections[0]?.name || "";
 
   return (
     <PrincipalNav>
@@ -55,40 +56,56 @@ const ClassStudents = () => {
 
         {/* Sections List */}
         <div className="px-4 py-6 space-y-3 pb-24">
-          {classSections.map((section, index) => (
-            <Card 
-              key={section.id} 
-              className="bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  {/* Number Badge */}
-                  <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 border-r border-border">
-                    <span className="text-2xl font-bold text-foreground">{index + 1}</span>
-                  </div>
-                  
-                  {/* Section Info */}
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-0.5">
-                      {section.name} - Section {section.section}
-                    </h3>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{section.students} Students</span>
-                      </div>
-                      {section.teacherName && (
-                        <div className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          <span>{section.teacherName}</span>
-                        </div>
-                      )}
+          {loading ? (
+            Array.from({ length: 2 }).map((_, i) => (
+              <Card key={i} className="bg-card border border-border rounded-2xl">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="w-12 h-12" />
+                    <div className="flex-1">
+                      <Skeleton className="h-5 w-32 mb-2" />
+                      <Skeleton className="h-4 w-24" />
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            classSections.map((section, index) => (
+              <Card 
+                key={section.id} 
+                className="bg-card border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    {/* Number Badge */}
+                    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 border-r border-border">
+                      <span className="text-2xl font-bold text-foreground">{index + 1}</span>
+                    </div>
+                    
+                    {/* Section Info */}
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-0.5">
+                        {section.name} - Section {section.section}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>{section.students_count || 0} Students</span>
+                        </div>
+                        {section.class_teacher && (
+                          <div className="flex items-center gap-1">
+                            <User className="w-4 h-4" />
+                            <span>{section.class_teacher.name}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </PrincipalNav>

@@ -4,10 +4,11 @@ import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, User, Camera, CheckCircle, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { mockTeachers } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,22 +25,38 @@ const EditStaff = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({
     name: "",
-    mobile: "",
+    phone: "",
   });
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load staff data based on ID
-    const teacher = mockTeachers.find(t => t.id === id);
-    if (teacher) {
-      setFormData({
-        name: teacher.name,
-        mobile: teacher.phone || "",
-      });
-    }
+    const fetchTeacher = async () => {
+      const { data, error } = await supabase
+        .from("teachers")
+        .select(`
+          *,
+          profile:profiles!teachers_user_id_fkey(*)
+        `)
+        .eq("id", id)
+        .single();
+
+      if (!error && data) {
+        setFormData({
+          name: data.profile?.full_name || "",
+          phone: data.profile?.phone || "",
+        });
+        setAvatarImage(data.profile?.avatar_url || null);
+        setProfileId(data.profile?.id || null);
+      }
+      setLoading(false);
+    };
+
+    fetchTeacher();
   }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,36 +73,84 @@ const EditStaff = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.mobile) {
+    if (!formData.name) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setShowSuccess(true);
-    
-    // Show success animation then navigate
-    setTimeout(() => {
-      toast.success("Staff member updated successfully!");
-      navigate("/principal/staff");
-    }, 1500);
+    try {
+      if (profileId) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            full_name: formData.name,
+            phone: formData.phone,
+          })
+          .eq("id", profileId);
+
+        if (error) throw error;
+      }
+      
+      setShowSuccess(true);
+      
+      setTimeout(() => {
+        toast.success("Staff member updated successfully!");
+        navigate("/principal/staff");
+      }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update staff member");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
     setShowDeleteDialog(false);
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Staff member deleted successfully!");
-    navigate("/principal/staff");
+    try {
+      // Delete teacher record (will cascade to assignments)
+      const { error } = await supabase
+        .from("teachers")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      
+      toast.success("Staff member deleted successfully!");
+      navigate("/principal/staff");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete staff member");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <PrincipalNav>
+        <div className="min-h-screen bg-background flex flex-col">
+          <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-4">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <Skeleton className="h-6 w-24" />
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+            <Skeleton className="w-36 h-36 rounded-full mb-12" />
+            <div className="w-full max-w-md space-y-5">
+              <Skeleton className="h-14 w-full rounded-2xl" />
+              <Skeleton className="h-14 w-full rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </PrincipalNav>
+    );
+  }
 
   return (
     <PrincipalNav>
@@ -183,17 +248,16 @@ const EditStaff = () => {
               />
             </div>
 
-            {/* Mobile Number Field */}
+            {/* Phone Number Field */}
             <div className="space-y-2">
-              <Label htmlFor="mobile" className="sr-only">Mobile Number</Label>
+              <Label htmlFor="phone" className="sr-only">Phone Number</Label>
               <Input
-                id="mobile"
+                id="phone"
                 type="tel"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                placeholder="Phone Number"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="h-14 text-base rounded-2xl bg-background border-border"
-                required
               />
             </div>
 

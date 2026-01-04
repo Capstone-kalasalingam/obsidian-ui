@@ -147,6 +147,30 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Create role-specific record
+    if (role === "teacher") {
+      const { error: teacherError } = await supabaseAdmin
+        .from("teachers")
+        .insert({
+          user_id: newUser.user.id,
+        });
+      if (teacherError) {
+        console.error("Error creating teacher record:", teacherError);
+      }
+    } else if (role === "student") {
+      // For students, we'd need a class_id which should be passed in
+      console.log("Student record creation requires class_id - skipping automatic creation");
+    } else if (role === "parent") {
+      const { error: parentError } = await supabaseAdmin
+        .from("parents")
+        .insert({
+          user_id: newUser.user.id,
+        });
+      if (parentError) {
+        console.error("Error creating parent record:", parentError);
+      }
+    }
+
     console.log(`User created successfully: ${newUser.user.id}`);
 
     return new Response(
