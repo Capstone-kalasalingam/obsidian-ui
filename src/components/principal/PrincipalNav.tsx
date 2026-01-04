@@ -29,7 +29,7 @@ import {
   Settings,
   Search,
   Calendar,
-  BookMarked,
+  CalendarRange,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import {
@@ -44,6 +44,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
+  { label: "Academic Years", href: "/principal/academic-years", icon: CalendarRange },
   { label: "Academic Calendar", href: "/principal/calendar", icon: Calendar },
   { label: "Students", href: "/principal/users", icon: GraduationCap },
   { label: "Teachers", href: "/principal/staff", icon: Users },
