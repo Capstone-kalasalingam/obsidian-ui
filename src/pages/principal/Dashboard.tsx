@@ -2,7 +2,6 @@ import PrincipalNav from "@/components/principal/PrincipalNav";
 import SummaryCard from "@/components/principal/dashboard/SummaryCard";
 import PerformanceChart from "@/components/principal/dashboard/PerformanceChart";
 import StudentOverviewTable from "@/components/principal/dashboard/StudentOverviewTable";
-import AIInsightsCard from "@/components/principal/dashboard/AIInsightsCard";
 import RecentActivityCard from "@/components/principal/dashboard/RecentActivityCard";
 import CalendarWidget from "@/components/principal/dashboard/CalendarWidget";
 import { useDashboardStats, useAnnouncements } from "@/hooks/usePrincipalData";
@@ -74,10 +73,9 @@ const Dashboard = () => {
             <StudentOverviewTable />
           </div>
 
-          {/* Right Column - Activity, AI Insights, Calendar */}
+          {/* Right Column - Activity, Calendar */}
           <div className="space-y-6">
             <RecentActivityCard />
-            <AIInsightsCard />
             <CalendarWidget />
           </div>
         </div>
