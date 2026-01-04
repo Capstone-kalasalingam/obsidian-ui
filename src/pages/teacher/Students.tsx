@@ -43,6 +43,7 @@ interface Student {
   className: string;
   section: string;
   status: string;
+  residenceType: string;
   parentName?: string;
 }
 
@@ -85,6 +86,28 @@ export default function TeacherStudents() {
     fetchData();
   }, [user]);
 
+  // Real-time subscription for students
+  useEffect(() => {
+    const channel = supabase
+      .channel('students-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'students'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchData = async () => {
     if (!user) return;
 
@@ -121,23 +144,38 @@ export default function TeacherStudents() {
             user_id,
             roll_number,
             status,
+            residence_type,
             class_id,
-            classes (name, section),
-            profiles!students_user_id_fkey (full_name, email)
+            classes (name, section)
           `)
           .in("class_id", classIds);
 
         if (studentsData) {
-          const formattedStudents = studentsData.map((s: any) => ({
-            id: s.id,
-            userId: s.user_id,
-            name: s.profiles?.full_name || "Unknown",
-            studentId: s.profiles?.email?.split("@")[0]?.toUpperCase() || "",
-            rollNumber: s.roll_number || "",
-            className: s.classes?.name || "",
-            section: s.classes?.section || "",
-            status: s.status || "active",
-          }));
+          // Fetch profiles separately to avoid RLS issues
+          const userIds = studentsData.map((s: any) => s.user_id);
+          const { data: profilesData } = await supabase
+            .from("profiles")
+            .select("id, full_name, email")
+            .in("id", userIds);
+
+          const profilesMap = new Map(
+            (profilesData || []).map((p: any) => [p.id, p])
+          );
+
+          const formattedStudents = studentsData.map((s: any) => {
+            const profile = profilesMap.get(s.user_id);
+            return {
+              id: s.id,
+              userId: s.user_id,
+              name: profile?.full_name || "Unknown",
+              studentId: profile?.email?.split("@")[0]?.toUpperCase() || "",
+              rollNumber: s.roll_number || "",
+              className: s.classes?.name || "",
+              section: s.classes?.section || "",
+              status: s.status || "active",
+              residenceType: s.residence_type || "day_scholar",
+            };
+          });
           setStudents(formattedStudents);
         }
       }
@@ -309,6 +347,7 @@ export default function TeacherStudents() {
                       <TableHead>Name</TableHead>
                       <TableHead>Roll No</TableHead>
                       <TableHead>Class</TableHead>
+                      <TableHead>Residence</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -319,6 +358,11 @@ export default function TeacherStudents() {
                         <TableCell className="font-medium">{student.name}</TableCell>
                         <TableCell>{student.rollNumber || "-"}</TableCell>
                         <TableCell>{student.className}-{student.section}</TableCell>
+                        <TableCell>
+                          <Badge variant={student.residenceType === "hostler" ? "secondary" : "outline"}>
+                            {student.residenceType === "hostler" ? "Hostler" : "Day Scholar"}
+                          </Badge>
+                        </TableCell>
                         <TableCell>
                           <Badge variant={student.status === "active" ? "default" : "secondary"}>
                             {student.status}
