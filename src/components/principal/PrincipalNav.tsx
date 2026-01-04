@@ -47,7 +47,6 @@ const navItems = [
   { label: "Academic Calendar", href: "/principal/calendar", icon: Calendar },
   { label: "Students", href: "/principal/users", icon: GraduationCap },
   { label: "Teachers", href: "/principal/staff", icon: Users },
-  { label: "Homework & Practice", href: "/principal/reports", icon: BookMarked },
   { label: "Classes & Subjects", href: "/principal/classes", icon: BookOpen },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },
   { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
