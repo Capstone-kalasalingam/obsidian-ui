@@ -89,6 +89,7 @@ export default function TeacherParents() {
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [csvData, setCsvData] = useState<CSVParent[]>([]);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0, errors: [] as string[] });
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
@@ -360,6 +361,7 @@ export default function TeacherParents() {
   const handleLinkClick = (parent: Parent) => {
     setSelectedParent(parent);
     setSelectedStudentIds(parent.linkedStudentIds);
+    setStudentSearchQuery("");
     setIsLinkDialogOpen(true);
   };
 
@@ -911,31 +913,56 @@ export default function TeacherParents() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="py-4 max-h-[300px] overflow-y-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search students..."
+                value={studentSearchQuery}
+                onChange={(e) => setStudentSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
+            <div className="py-2 max-h-[300px] overflow-y-auto">
               {students.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
                   No students available in your assigned classes
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {students.map((student) => (
-                    <div
-                      key={student.id}
-                      className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"
-                      onClick={() => toggleStudentSelection(student.id)}
-                    >
-                      <Checkbox
-                        checked={selectedStudentIds.includes(student.id)}
-                        onCheckedChange={() => toggleStudentSelection(student.id)}
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium">{student.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {student.className} - {student.section}
-                        </p>
+                  {students
+                    .filter((student) =>
+                      student.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                      student.className.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                      student.section.toLowerCase().includes(studentSearchQuery.toLowerCase())
+                    )
+                    .map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"
+                        onClick={() => toggleStudentSelection(student.id)}
+                      >
+                        <Checkbox
+                          checked={selectedStudentIds.includes(student.id)}
+                          onCheckedChange={() => toggleStudentSelection(student.id)}
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium">{student.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {student.className} - {student.section}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  {students.filter((student) =>
+                    student.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                    student.className.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                    student.section.toLowerCase().includes(studentSearchQuery.toLowerCase())
+                  ).length === 0 && (
+                    <p className="text-muted-foreground text-center py-4">
+                      No students found matching "{studentSearchQuery}"
+                    </p>
+                  )}
                 </div>
               )}
             </div>
