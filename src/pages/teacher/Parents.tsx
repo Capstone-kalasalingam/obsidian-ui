@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import TeacherNav from "@/components/teacher/TeacherNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -35,7 +42,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Plus, Search, Users, Edit2, Trash2, Link2 } from "lucide-react";
+import { Plus, Search, Users, Edit2, Trash2, Link2, Upload, Download, FileSpreadsheet } from "lucide-react";
 
 interface Parent {
   id: string;
@@ -56,19 +63,33 @@ interface Student {
   section: string;
 }
 
+interface CSVParent {
+  parentId: string;
+  fullName: string;
+  password: string;
+  phone: string;
+  occupation: string;
+  villageAddress: string;
+}
+
 export default function TeacherParents() {
   const { user } = useAuth();
   const [parents, setParents] = useState<Parent[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "linked" | "unlinked">("all");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [csvData, setCsvData] = useState<CSVParent[]>([]);
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0, errors: [] as string[] });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     parentId: "",
@@ -403,11 +424,143 @@ export default function TeacherParents() {
     }
   };
 
-  const filteredParents = parents.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.parentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.phone.includes(searchQuery)
-  );
+  // CSV Import Functions
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        toast.error("CSV file must have a header row and at least one data row");
+        return;
+      }
+
+      const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+      const requiredHeaders = ['parentid', 'fullname', 'password'];
+      const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+      
+      if (missingHeaders.length > 0) {
+        toast.error(`Missing required columns: ${missingHeaders.join(', ')}`);
+        return;
+      }
+
+      const parsedData: CSVParent[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length < headers.length) continue;
+
+        const row: any = {};
+        headers.forEach((header, idx) => {
+          row[header] = values[idx] || '';
+        });
+
+        parsedData.push({
+          parentId: row.parentid || '',
+          fullName: row.fullname || '',
+          password: row.password || '',
+          phone: row.phone || '',
+          occupation: row.occupation || '',
+          villageAddress: row.villageaddress || row.village || '',
+        });
+      }
+
+      if (parsedData.length === 0) {
+        toast.error("No valid parent data found in CSV");
+        return;
+      }
+
+      setCsvData(parsedData);
+      toast.success(`${parsedData.length} parents found in CSV`);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = async () => {
+    if (csvData.length === 0) {
+      toast.error("No CSV data to import");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setImportProgress({ current: 0, total: csvData.length, errors: [] });
+
+    const errors: string[] = [];
+
+    for (let i = 0; i < csvData.length; i++) {
+      const parent = csvData[i];
+      setImportProgress(prev => ({ ...prev, current: i + 1 }));
+
+      if (!parent.parentId || !parent.fullName || !parent.password) {
+        errors.push(`Row ${i + 1}: Missing required fields`);
+        continue;
+      }
+
+      try {
+        const response = await supabase.functions.invoke("create-user", {
+          body: {
+            parentId: parent.parentId,
+            password: parent.password,
+            fullName: parent.fullName,
+            role: "parent",
+            phone: parent.phone,
+            occupation: parent.occupation,
+            villageAddress: parent.villageAddress,
+          },
+        });
+
+        if (response.error) {
+          errors.push(`Row ${i + 1} (${parent.parentId}): ${response.error.message}`);
+        }
+      } catch (error: any) {
+        errors.push(`Row ${i + 1} (${parent.parentId}): ${error.message}`);
+      }
+    }
+
+    setImportProgress(prev => ({ ...prev, errors }));
+    setIsSubmitting(false);
+
+    if (errors.length === 0) {
+      toast.success(`Successfully imported ${csvData.length} parents!`);
+      setIsBulkImportDialogOpen(false);
+      setCsvData([]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      fetchData();
+    } else {
+      toast.warning(`Import completed with ${errors.length} errors`);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const headers = ['parentId', 'fullName', 'password', 'phone', 'occupation', 'villageAddress'];
+    const sampleRow = ['PAR001', 'Sample Parent', 'password123', '9876543210', 'Farmer', 'Ramapur'];
+    const csvContent = [headers.join(','), sampleRow.join(',')].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'parents_template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const filteredParents = parents.filter(p => {
+    const matchesSearch = 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.parentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.phone.includes(searchQuery);
+    
+    const matchesFilter = 
+      filterStatus === "all" ||
+      (filterStatus === "linked" && p.linkedStudents.length > 0) ||
+      (filterStatus === "unlinked" && p.linkedStudents.length === 0);
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <TeacherNav>
@@ -418,14 +571,20 @@ export default function TeacherParents() {
             <h1 className="text-2xl font-bold">Parent Management</h1>
             <p className="text-muted-foreground">Add and manage parent accounts</p>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Parent
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsBulkImportDialogOpen(true)} className="gap-2">
+              <Upload className="w-4 h-4" />
+              Bulk Import
+            </Button>
+            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Parent
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <Card className="border-0 card-neu">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -442,8 +601,8 @@ export default function TeacherParents() {
           <Card className="border-0 card-neu">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-accent" />
+                <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                  <Link2 className="w-5 h-5 text-green-500" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
@@ -454,19 +613,46 @@ export default function TeacherParents() {
               </div>
             </CardContent>
           </Card>
+          <Card className="border-0 card-neu">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {parents.filter(p => p.linkedStudents.length === 0).length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Unlinked</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Search */}
+        {/* Search & Filter */}
         <Card className="border-0 card-neu mb-6">
           <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, parent ID, or phone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, parent ID, or phone..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={(v: "all" | "linked" | "unlinked") => setFilterStatus(v)}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Parents</SelectItem>
+                  <SelectItem value="linked">With Students</SelectItem>
+                  <SelectItem value="unlinked">Without Students</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -474,14 +660,14 @@ export default function TeacherParents() {
         {/* Parents Table */}
         <Card className="border-0 card-neu">
           <CardHeader>
-            <CardTitle>Parents List</CardTitle>
+            <CardTitle>Parents List ({filteredParents.length})</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
             ) : filteredParents.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {searchQuery ? "No parents found matching your search" : "No parents added yet"}
+                {searchQuery || filterStatus !== "all" ? "No parents found matching your criteria" : "No parents added yet"}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -760,6 +946,99 @@ export default function TeacherParents() {
               </Button>
               <Button onClick={handleUpdateLinks} disabled={isSubmitting}>
                 {isSubmitting ? "Saving..." : "Save Links"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Bulk Import Dialog */}
+        <Dialog open={isBulkImportDialogOpen} onOpenChange={(open) => {
+          setIsBulkImportDialogOpen(open);
+          if (!open) {
+            setCsvData([]);
+            setImportProgress({ current: 0, total: 0, errors: [] });
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }
+        }}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Bulk Import Parents</DialogTitle>
+              <DialogDescription>
+                Upload a CSV file to import multiple parents at once
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={downloadTemplate} className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Download Template
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Use this template for correct format
+                </span>
+              </div>
+
+              <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="csv-upload"
+                />
+                <label htmlFor="csv-upload" className="cursor-pointer">
+                  <FileSpreadsheet className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm font-medium">Click to upload CSV file</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Required columns: parentId, fullName, password
+                  </p>
+                </label>
+              </div>
+
+              {csvData.length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="font-medium">{csvData.length} parents ready to import</p>
+                  <p className="text-sm text-muted-foreground">
+                    Preview: {csvData.slice(0, 3).map(p => p.fullName).join(', ')}
+                    {csvData.length > 3 && ` and ${csvData.length - 3} more...`}
+                  </p>
+                </div>
+              )}
+
+              {importProgress.total > 0 && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{importProgress.current} / {importProgress.total}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                    />
+                  </div>
+                  {importProgress.errors.length > 0 && (
+                    <div className="mt-2 max-h-32 overflow-y-auto">
+                      {importProgress.errors.map((err, i) => (
+                        <p key={i} className="text-xs text-destructive">{err}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsBulkImportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleBulkImport} 
+                disabled={isSubmitting || csvData.length === 0}
+              >
+                {isSubmitting ? `Importing ${importProgress.current}/${importProgress.total}...` : "Import Parents"}
               </Button>
             </DialogFooter>
           </DialogContent>
