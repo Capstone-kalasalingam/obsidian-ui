@@ -56,6 +56,62 @@ export type Database = {
         }
         Relationships: []
       }
+      academic_years: {
+        Row: {
+          admissions_open: boolean | null
+          attendance_locked: boolean | null
+          created_at: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          is_locked: boolean | null
+          locked_at: string | null
+          locked_by: string | null
+          marks_locked: boolean | null
+          name: string
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          admissions_open?: boolean | null
+          attendance_locked?: boolean | null
+          created_at?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          is_locked?: boolean | null
+          locked_at?: string | null
+          locked_by?: string | null
+          marks_locked?: boolean | null
+          name: string
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          admissions_open?: boolean | null
+          attendance_locked?: boolean | null
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          is_locked?: boolean | null
+          locked_at?: string | null
+          locked_by?: string | null
+          marks_locked?: boolean | null
+          name?: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_years_locked_by_fkey"
+            columns: ["locked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           created_at: string
@@ -551,33 +607,46 @@ export type Database = {
       }
       students: {
         Row: {
+          academic_year_id: string | null
           admission_date: string | null
           class_id: string
           created_at: string | null
           id: string
           roll_number: string | null
+          status: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          academic_year_id?: string | null
           admission_date?: string | null
           class_id: string
           created_at?: string | null
           id?: string
           roll_number?: string | null
+          status?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          academic_year_id?: string | null
           admission_date?: string | null
           class_id?: string
           created_at?: string | null
           id?: string
           roll_number?: string | null
+          status?: string | null
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "students_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_class_id_fkey"
             columns: ["class_id"]
