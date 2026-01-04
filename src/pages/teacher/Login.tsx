@@ -3,33 +3,70 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, Mail, Lock } from "lucide-react";
+import { GraduationCap, IdCard, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function TeacherLogin() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState("");
+  const [teacherId, setTeacherId] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!teacherId || !password) {
       toast({
         title: "Error",
-        description: "Please enter both email and password",
+        description: "Please enter both Teacher ID and password",
         variant: "destructive",
       });
       return;
     }
 
-    // Demo mode - any credentials work
-    toast({
-      title: "Login Successful!",
-      description: "Welcome to Teacher Portal",
-    });
-    navigate("/teacher/dashboard");
+    setIsLoading(true);
+
+    try {
+      // Convert teacher ID to email format used internally
+      const email = `${teacherId.toLowerCase()}@school.local`;
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid Teacher ID or password",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Fetch teacher name from profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", data.user.id)
+        .single();
+
+      toast({
+        title: "Login Successful!",
+        description: `Welcome, ${profile?.full_name || "Teacher"}`,
+      });
+      navigate("/teacher/dashboard");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,14 +84,14 @@ export default function TeacherLogin() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Email</label>
+              <label className="text-sm font-medium mb-2 block">Teacher ID</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
-                  type="email"
-                  placeholder="teacher@school.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Enter your Teacher ID (e.g., TCH001)"
+                  value={teacherId}
+                  onChange={(e) => setTeacherId(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -74,15 +111,9 @@ export default function TeacherLogin() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
-              Login
+            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
-
-            <div className="text-center pt-4">
-              <p className="text-sm text-muted-foreground">
-                Demo mode - Use any credentials
-              </p>
-            </div>
 
             <div className="text-center pt-2">
               <Button
