@@ -1,5 +1,5 @@
-import PillNav from "@/components/landing/PillNav";
-import ScrollHero from "@/components/landing/ScrollHero";
+import LandingNav from "@/components/landing/LandingNav";
+import PremiumHero from "@/components/landing/PremiumHero";
 import ProblemSection from "@/components/landing/ProblemSection";
 import SolutionSection from "@/components/landing/SolutionSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
@@ -11,8 +11,8 @@ import PremiumFooter from "@/components/landing/PremiumFooter";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <PillNav />
-      <ScrollHero />
+      <LandingNav />
+      <PremiumHero />
       <ProblemSection />
       <section id="features">
         <SolutionSection />
