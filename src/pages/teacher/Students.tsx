@@ -13,6 +13,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,7 +42,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Plus, Search, Users, Edit2, Trash2, UserPlus } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface Student {
   id: string;
@@ -41,10 +50,12 @@ interface Student {
   studentId: string;
   rollNumber: string;
   className: string;
+  classId: string;
   section: string;
   status: string;
   residenceType: string;
-  parentName?: string;
+  villageAddress: string;
+  parentPhone: string;
 }
 
 interface Parent {
@@ -68,7 +79,10 @@ export default function TeacherStudents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const [formData, setFormData] = useState({
     studentId: "",
@@ -80,6 +94,14 @@ export default function TeacherStudents() {
     parentPhone: "",
     classId: "",
     parentId: "",
+  });
+
+  const [editFormData, setEditFormData] = useState({
+    rollNumber: "",
+    villageAddress: "",
+    residenceType: "",
+    parentPhone: "",
+    status: "",
   });
 
   useEffect(() => {
@@ -96,6 +118,17 @@ export default function TeacherStudents() {
           event: '*',
           schema: 'public',
           table: 'students'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
         },
         () => {
           fetchData();
@@ -137,7 +170,7 @@ export default function TeacherStudents() {
       // Fetch students from assigned classes
       const classIds = classes.map((c: ClassInfo) => c.id);
       if (classIds.length > 0) {
-        const { data: studentsData } = await supabase
+        const { data: studentsData, error: studentsError } = await supabase
           .from("students")
           .select(`
             id,
@@ -145,18 +178,28 @@ export default function TeacherStudents() {
             roll_number,
             status,
             residence_type,
+            village_address,
+            parent_phone,
             class_id,
             classes (name, section)
           `)
           .in("class_id", classIds);
 
-        if (studentsData) {
-          // Fetch profiles separately to avoid RLS issues
+        if (studentsError) {
+          console.error("Error fetching students:", studentsError);
+        }
+
+        if (studentsData && studentsData.length > 0) {
+          // Fetch profiles separately - now with RLS policy allowing teachers to see student profiles
           const userIds = studentsData.map((s: any) => s.user_id);
-          const { data: profilesData } = await supabase
+          const { data: profilesData, error: profilesError } = await supabase
             .from("profiles")
             .select("id, full_name, email")
             .in("id", userIds);
+
+          if (profilesError) {
+            console.error("Error fetching profiles:", profilesError);
+          }
 
           const profilesMap = new Map(
             (profilesData || []).map((p: any) => [p.id, p])
@@ -171,12 +214,17 @@ export default function TeacherStudents() {
               studentId: profile?.email?.split("@")[0]?.toUpperCase() || "",
               rollNumber: s.roll_number || "",
               className: s.classes?.name || "",
+              classId: s.class_id,
               section: s.classes?.section || "",
               status: s.status || "active",
               residenceType: s.residence_type || "day_scholar",
+              villageAddress: s.village_address || "",
+              parentPhone: s.parent_phone || "",
             };
           });
           setStudents(formattedStudents);
+        } else {
+          setStudents([]);
         }
       }
     }
@@ -207,6 +255,10 @@ export default function TeacherStudents() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleEditInputChange = (field: string, value: string) => {
+    setEditFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const resetForm = () => {
     setFormData({
       studentId: "",
@@ -227,11 +279,15 @@ export default function TeacherStudents() {
       return;
     }
 
+    // Validate roll number is numeric
+    if (formData.rollNumber && !/^\d+$/.test(formData.rollNumber)) {
+      toast.error("Roll number must be a number");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-      
       const response = await supabase.functions.invoke("create-user", {
         body: {
           studentId: formData.studentId,
@@ -257,7 +313,98 @@ export default function TeacherStudents() {
       fetchData();
     } catch (error: any) {
       console.error("Error creating student:", error);
-      toast.error(error.message || "Failed to create student");
+      if (error.message?.includes("students_class_roll_unique")) {
+        toast.error("Roll number already exists in this class");
+      } else {
+        toast.error(error.message || "Failed to create student");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditStudent = (student: Student) => {
+    setSelectedStudent(student);
+    setEditFormData({
+      rollNumber: student.rollNumber,
+      villageAddress: student.villageAddress,
+      residenceType: student.residenceType,
+      parentPhone: student.parentPhone,
+      status: student.status,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateStudent = async () => {
+    if (!selectedStudent) return;
+
+    // Validate roll number is numeric
+    if (editFormData.rollNumber && !/^\d+$/.test(editFormData.rollNumber)) {
+      toast.error("Roll number must be a number");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("students")
+        .update({
+          roll_number: editFormData.rollNumber || null,
+          village_address: editFormData.villageAddress || null,
+          residence_type: editFormData.residenceType || "day_scholar",
+          parent_phone: editFormData.parentPhone || null,
+          status: editFormData.status,
+        })
+        .eq("id", selectedStudent.id);
+
+      if (error) {
+        if (error.message?.includes("students_class_roll_unique")) {
+          toast.error("Roll number already exists in this class");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      toast.success("Student updated successfully!");
+      setIsEditDialogOpen(false);
+      setSelectedStudent(null);
+      fetchData();
+    } catch (error: any) {
+      console.error("Error updating student:", error);
+      toast.error(error.message || "Failed to update student");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteClick = (student: Student) => {
+    setSelectedStudent(student);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteStudent = async () => {
+    if (!selectedStudent) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Delete the student record (will cascade or handle as needed)
+      const { error } = await supabase
+        .from("students")
+        .delete()
+        .eq("id", selectedStudent.id);
+
+      if (error) throw error;
+
+      toast.success("Student deleted successfully!");
+      setIsDeleteDialogOpen(false);
+      setSelectedStudent(null);
+      fetchData();
+    } catch (error: any) {
+      console.error("Error deleting student:", error);
+      toast.error(error.message || "Failed to delete student");
     } finally {
       setIsSubmitting(false);
     }
@@ -352,12 +499,13 @@ export default function TeacherStudents() {
                       <TableHead>Class</TableHead>
                       <TableHead>Residence</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredStudents.map((student) => (
                       <TableRow key={student.id}>
-                        <TableCell className="font-mono">{student.studentId}</TableCell>
+                        <TableCell className="font-mono">{student.studentId || "-"}</TableCell>
                         <TableCell className="font-medium">{student.name}</TableCell>
                         <TableCell>{student.rollNumber || "-"}</TableCell>
                         <TableCell>{student.className}-{student.section}</TableCell>
@@ -370,6 +518,25 @@ export default function TeacherStudents() {
                           <Badge variant={student.status === "active" ? "default" : "secondary"}>
                             {student.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditStudent(student)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => handleDeleteClick(student)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -423,10 +590,11 @@ export default function TeacherStudents() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="rollNumber">Roll Number</Label>
+                <Label htmlFor="rollNumber">Roll Number (unique per class)</Label>
                 <Input
                   id="rollNumber"
-                  placeholder="e.g., 101"
+                  type="number"
+                  placeholder="e.g., 1"
                   value={formData.rollNumber}
                   onChange={(e) => handleInputChange("rollNumber", e.target.value)}
                 />
@@ -518,6 +686,114 @@ export default function TeacherStudents() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Student Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Student</DialogTitle>
+              <DialogDescription>
+                Update student information for {selectedStudent?.name}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="editRollNumber">Roll Number (unique per class)</Label>
+                <Input
+                  id="editRollNumber"
+                  type="number"
+                  placeholder="e.g., 1"
+                  value={editFormData.rollNumber}
+                  onChange={(e) => handleEditInputChange("rollNumber", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editVillageAddress">Village/Address</Label>
+                <Input
+                  id="editVillageAddress"
+                  placeholder="Enter village or address"
+                  value={editFormData.villageAddress}
+                  onChange={(e) => handleEditInputChange("villageAddress", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editResidenceType">Residence Type</Label>
+                <Select
+                  value={editFormData.residenceType}
+                  onValueChange={(value) => handleEditInputChange("residenceType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day_scholar">Day Scholar</SelectItem>
+                    <SelectItem value="hostler">Hostler</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editParentPhone">Parent Phone Number</Label>
+                <Input
+                  id="editParentPhone"
+                  type="tel"
+                  placeholder="e.g., 9876543210"
+                  value={editFormData.parentPhone}
+                  onChange={(e) => handleEditInputChange("parentPhone", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editStatus">Status</Label>
+                <Select
+                  value={editFormData.status}
+                  onValueChange={(value) => handleEditInputChange("status", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateStudent} disabled={isSubmitting}>
+                {isSubmitting ? "Updating..." : "Update Student"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Student</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete {selectedStudent?.name}? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteStudent}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isSubmitting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </TeacherNav>
   );
