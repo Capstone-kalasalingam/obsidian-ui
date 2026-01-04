@@ -612,10 +612,13 @@ export type Database = {
           class_id: string
           created_at: string | null
           id: string
+          parent_phone: string | null
+          residence_type: string | null
           roll_number: string | null
           status: string | null
           updated_at: string | null
           user_id: string
+          village_address: string | null
         }
         Insert: {
           academic_year_id?: string | null
@@ -623,10 +626,13 @@ export type Database = {
           class_id: string
           created_at?: string | null
           id?: string
+          parent_phone?: string | null
+          residence_type?: string | null
           roll_number?: string | null
           status?: string | null
           updated_at?: string | null
           user_id: string
+          village_address?: string | null
         }
         Update: {
           academic_year_id?: string | null
@@ -634,10 +640,13 @@ export type Database = {
           class_id?: string
           created_at?: string | null
           id?: string
+          parent_phone?: string | null
+          residence_type?: string | null
           roll_number?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string
+          village_address?: string | null
         }
         Relationships: [
           {

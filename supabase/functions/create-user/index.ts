@@ -22,6 +22,9 @@ interface CreateUserRequest {
   classId?: string;
   rollNumber?: string;
   parentIds?: string[]; // Parent user IDs to link
+  villageAddress?: string;
+  residenceType?: string;
+  parentPhone?: string;
   // Parent-specific fields
   occupation?: string;
 }
@@ -101,6 +104,9 @@ const handler = async (req: Request): Promise<Response> => {
       classId,
       rollNumber,
       parentIds,
+      villageAddress,
+      residenceType,
+      parentPhone,
       occupation
     }: CreateUserRequest = await req.json();
 
@@ -291,6 +297,9 @@ const handler = async (req: Request): Promise<Response> => {
           roll_number: rollNumber || null,
           academic_year_id: academicYear?.id || null,
           status: "active",
+          village_address: villageAddress || null,
+          residence_type: residenceType || "day_scholar",
+          parent_phone: parentPhone || null,
         })
         .select()
         .single();
