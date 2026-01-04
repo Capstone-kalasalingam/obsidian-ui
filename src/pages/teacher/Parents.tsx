@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -24,7 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Plus, Search, Users, Phone, Mail } from "lucide-react";
+import { Plus, Search, Users, Edit2, Trash2, Link2 } from "lucide-react";
 
 interface Parent {
   id: string;
@@ -34,16 +45,30 @@ interface Parent {
   phone: string;
   occupation: string;
   villageAddress: string;
+  linkedStudentIds: string[];
   linkedStudents: string[];
+}
+
+interface Student {
+  id: string;
+  name: string;
+  className: string;
+  section: string;
 }
 
 export default function TeacherParents() {
   const { user } = useAuth();
   const [parents, setParents] = useState<Parent[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     parentId: "",
@@ -54,14 +79,81 @@ export default function TeacherParents() {
     villageAddress: "",
   });
 
+  const [editFormData, setEditFormData] = useState({
+    phone: "",
+    occupation: "",
+    villageAddress: "",
+  });
+
   useEffect(() => {
-    fetchParents();
+    fetchData();
   }, [user]);
 
-  const fetchParents = async () => {
+  const fetchData = async () => {
     if (!user) return;
 
     setIsLoading(true);
+
+    // Get teacher's assigned classes
+    const { data: teacher } = await supabase
+      .from("teachers")
+      .select(`
+        id,
+        teacher_assignments (
+          class_id,
+          classes (id, name, section)
+        )
+      `)
+      .eq("user_id", user.id)
+      .single();
+
+    let classIds: string[] = [];
+    if (teacher?.teacher_assignments) {
+      const classes = teacher.teacher_assignments
+        .map((a: any) => a.classes)
+        .filter((c: any, i: number, arr: any[]) => 
+          arr.findIndex((x: any) => x.id === c.id) === i
+        );
+      classIds = classes.map((c: any) => c.id);
+
+      // Fetch students from assigned classes
+      if (classIds.length > 0) {
+        const { data: studentsData } = await supabase
+          .from("students")
+          .select(`
+            id,
+            user_id,
+            class_id,
+            classes (name, section)
+          `)
+          .in("class_id", classIds);
+
+        if (studentsData && studentsData.length > 0) {
+          const userIds = studentsData.map((s: any) => s.user_id);
+          const { data: profilesData } = await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .in("id", userIds);
+
+          const profilesMap = new Map(
+            (profilesData || []).map((p: any) => [p.id, p])
+          );
+
+          const formattedStudents = studentsData.map((s: any) => {
+            const profile = profilesMap.get(s.user_id);
+            return {
+              id: s.id,
+              name: profile?.full_name || "Unknown",
+              className: s.classes?.name || "",
+              section: s.classes?.section || "",
+            };
+          });
+          setStudents(formattedStudents);
+        } else {
+          setStudents([]);
+        }
+      }
+    }
 
     // Fetch parents with their linked students
     const { data: parentsData } = await supabase
@@ -73,6 +165,7 @@ export default function TeacherParents() {
         village_address,
         profiles!parents_user_id_fkey (full_name, email, phone),
         student_parents (
+          student_id,
           students (
             profiles!students_user_id_fkey (full_name)
           )
@@ -88,6 +181,7 @@ export default function TeacherParents() {
         phone: p.profiles?.phone || "",
         occupation: p.occupation || "",
         villageAddress: p.village_address || "",
+        linkedStudentIds: p.student_parents?.map((sp: any) => sp.student_id).filter(Boolean) || [],
         linkedStudents: p.student_parents?.map((sp: any) => 
           sp.students?.profiles?.full_name
         ).filter(Boolean) || [],
@@ -100,6 +194,10 @@ export default function TeacherParents() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditInputChange = (field: string, value: string) => {
+    setEditFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const resetForm = () => {
@@ -141,10 +239,165 @@ export default function TeacherParents() {
       toast.success("Parent created successfully!");
       setIsAddDialogOpen(false);
       resetForm();
-      fetchParents();
+      fetchData();
     } catch (error: any) {
       console.error("Error creating parent:", error);
       toast.error(error.message || "Failed to create parent");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (parent: Parent) => {
+    setSelectedParent(parent);
+    setEditFormData({
+      phone: parent.phone,
+      occupation: parent.occupation,
+      villageAddress: parent.villageAddress,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateParent = async () => {
+    if (!selectedParent) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Update profile (phone)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          phone: editFormData.phone || null,
+        })
+        .eq("id", selectedParent.userId);
+
+      if (profileError) throw profileError;
+
+      // Update parent record (occupation, village_address)
+      const { error: parentError } = await supabase
+        .from("parents")
+        .update({
+          occupation: editFormData.occupation || null,
+          village_address: editFormData.villageAddress || null,
+        })
+        .eq("id", selectedParent.id);
+
+      if (parentError) throw parentError;
+
+      toast.success("Parent updated successfully!");
+      setIsEditDialogOpen(false);
+      setSelectedParent(null);
+      fetchData();
+    } catch (error: any) {
+      console.error("Error updating parent:", error);
+      toast.error(error.message || "Failed to update parent");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteClick = (parent: Parent) => {
+    setSelectedParent(parent);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteParent = async () => {
+    if (!selectedParent) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // First delete student_parents links
+      const { error: linkError } = await supabase
+        .from("student_parents")
+        .delete()
+        .eq("parent_id", selectedParent.id);
+
+      if (linkError) throw linkError;
+
+      // Delete parent record
+      const { error: parentError } = await supabase
+        .from("parents")
+        .delete()
+        .eq("id", selectedParent.id);
+
+      if (parentError) throw parentError;
+
+      toast.success("Parent deleted successfully!");
+      setIsDeleteDialogOpen(false);
+      setSelectedParent(null);
+      fetchData();
+    } catch (error: any) {
+      console.error("Error deleting parent:", error);
+      toast.error(error.message || "Failed to delete parent");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleLinkClick = (parent: Parent) => {
+    setSelectedParent(parent);
+    setSelectedStudentIds(parent.linkedStudentIds);
+    setIsLinkDialogOpen(true);
+  };
+
+  const toggleStudentSelection = (studentId: string) => {
+    setSelectedStudentIds(prev => 
+      prev.includes(studentId) 
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
+  const handleUpdateLinks = async () => {
+    if (!selectedParent) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Get current links
+      const currentLinks = selectedParent.linkedStudentIds;
+      const newLinks = selectedStudentIds;
+
+      // Find links to remove
+      const toRemove = currentLinks.filter(id => !newLinks.includes(id));
+      // Find links to add
+      const toAdd = newLinks.filter(id => !currentLinks.includes(id));
+
+      // Remove old links
+      if (toRemove.length > 0) {
+        const { error: removeError } = await supabase
+          .from("student_parents")
+          .delete()
+          .eq("parent_id", selectedParent.id)
+          .in("student_id", toRemove);
+
+        if (removeError) throw removeError;
+      }
+
+      // Add new links
+      if (toAdd.length > 0) {
+        const newLinkRecords = toAdd.map(studentId => ({
+          parent_id: selectedParent.id,
+          student_id: studentId,
+          is_primary: currentLinks.length === 0 && toAdd.indexOf(studentId) === 0,
+        }));
+
+        const { error: addError } = await supabase
+          .from("student_parents")
+          .insert(newLinkRecords);
+
+        if (addError) throw addError;
+      }
+
+      toast.success("Student links updated successfully!");
+      setIsLinkDialogOpen(false);
+      setSelectedParent(null);
+      fetchData();
+    } catch (error: any) {
+      console.error("Error updating student links:", error);
+      toast.error(error.message || "Failed to update student links");
     } finally {
       setIsSubmitting(false);
     }
@@ -241,6 +494,7 @@ export default function TeacherParents() {
                       <TableHead>Village</TableHead>
                       <TableHead>Occupation</TableHead>
                       <TableHead>Linked Students</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -263,6 +517,35 @@ export default function TeacherParents() {
                           ) : (
                             <span className="text-muted-foreground text-sm">No students linked</span>
                           )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleLinkClick(parent)}
+                              title="Link/Unlink Students"
+                            >
+                              <Link2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditClick(parent)}
+                              title="Edit"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteClick(parent)}
+                              className="text-destructive hover:text-destructive"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -352,6 +635,131 @@ export default function TeacherParents() {
               </Button>
               <Button onClick={handleCreateParent} disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create Parent"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Parent Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Parent</DialogTitle>
+              <DialogDescription>
+                Update parent details for {selectedParent?.name}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="editPhone">Phone Number</Label>
+                <Input
+                  id="editPhone"
+                  placeholder="e.g., 9876543210"
+                  value={editFormData.phone}
+                  onChange={(e) => handleEditInputChange("phone", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editOccupation">Occupation</Label>
+                <Input
+                  id="editOccupation"
+                  placeholder="e.g., Engineer"
+                  value={editFormData.occupation}
+                  onChange={(e) => handleEditInputChange("occupation", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="editVillageAddress">Village Name</Label>
+                <Input
+                  id="editVillageAddress"
+                  placeholder="e.g., Ramapur"
+                  value={editFormData.villageAddress}
+                  onChange={(e) => handleEditInputChange("villageAddress", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateParent} disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Parent</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete {selectedParent?.name}? This will also remove all student links. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteParent}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Link Students Dialog */}
+        <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Link Students</DialogTitle>
+              <DialogDescription>
+                Select students to link to {selectedParent?.name}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-4 max-h-[300px] overflow-y-auto">
+              {students.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">
+                  No students available in your assigned classes
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {students.map((student) => (
+                    <div
+                      key={student.id}
+                      className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"
+                      onClick={() => toggleStudentSelection(student.id)}
+                    >
+                      <Checkbox
+                        checked={selectedStudentIds.includes(student.id)}
+                        onCheckedChange={() => toggleStudentSelection(student.id)}
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{student.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {student.className} - {student.section}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsLinkDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateLinks} disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Links"}
               </Button>
             </DialogFooter>
           </DialogContent>
