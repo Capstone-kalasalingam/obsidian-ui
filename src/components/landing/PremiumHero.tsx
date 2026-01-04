@@ -1,8 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
-import { Link } from "react-router-dom";
+import { BookOpen, GraduationCap, Users, Sparkles, ArrowRight } from "lucide-react";
 
 const PremiumHero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,235 +10,277 @@ const PremiumHero = () => {
     offset: ["start start", "end start"],
   });
 
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+  // Book animation transforms - creates the story effect
+  const bookScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.15]);
+  const bookRotateY = useTransform(scrollYProgress, [0, 0.3], [5, -10]);
+  const bookY = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
+  
+  // Content parallax
+  const textY = useTransform(scrollYProgress, [0, 0.5], [0, 80]);
+  const opacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  
+  // Floating elements parallax
+  const orb1Y = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const orb2Y = useTransform(scrollYProgress, [0, 1], [0, -180]);
+  const orb3Y = useTransform(scrollYProgress, [0, 1], [0, -90]);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <section
       ref={containerRef}
       className="relative min-h-screen flex items-center overflow-hidden bg-gradient-mesh noise-overlay"
     >
-      {/* Animated gradient orbs */}
+      {/* Animated Background Orbs */}
       <motion.div
-        style={{ y: y3 }}
-        className="absolute top-20 left-[10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl animate-pulse-soft"
+        style={{ y: orb1Y }}
+        className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-primary/5 blur-3xl"
       />
       <motion.div
-        style={{ y: y2 }}
-        className="absolute bottom-20 right-[5%] w-[600px] h-[600px] rounded-full bg-primary/8 blur-3xl animate-pulse-soft"
-        initial={{ opacity: 0.5 }}
+        style={{ y: orb2Y }}
+        className="absolute bottom-20 right-[15%] w-96 h-96 rounded-full bg-accent/5 blur-3xl"
       />
       <motion.div
-        style={{ y: y1 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-soft-indigo blur-3xl opacity-60"
+        style={{ y: orb3Y }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-soft-purple blur-3xl opacity-50"
       />
 
-      <motion.div
-        style={{ opacity, scale }}
-        className="container mx-auto px-6 lg:px-12 relative z-10"
-      >
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
-          {/* Left side - Content */}
+      <div className="container mx-auto px-6 lg:px-12 pt-28 pb-16">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center min-h-[80vh]">
+          {/* Left Content */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-8"
+            style={{ y: textY, opacity }}
+            className="text-center lg:text-left z-10"
           >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium mb-6"
             >
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">
-                Next-Generation School Platform
-              </span>
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-primary">AI-Powered School Platform</span>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-foreground leading-[1.1] tracking-tight"
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-foreground leading-[1.1] tracking-tight mb-6"
             >
               The Intelligent{" "}
-              <span className="text-gradient-primary">School</span>{" "}
-              Operating System
+              <span className="text-gradient-primary">School Platform</span>
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-lg sm:text-xl text-muted-foreground max-w-lg leading-relaxed"
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed"
             >
-              Kalvion helps schools deliver quality education, maintain complete
-              administrative control, and guide every student with clarity.
+              From teacher guidance to student understanding — Kalvion brings
+              clarity, control, and confidence to education.
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 pt-4"
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
               <Button
                 size="lg"
-                className="h-14 px-8 text-base font-semibold rounded-xl shadow-glow hover:shadow-glow-strong transition-all duration-300"
+                className="h-14 px-8 rounded-full shadow-glow text-base font-semibold"
               >
-                Request a Demo
-                <ArrowRight className="ml-2 h-5 w-5" />
+                Request Demo
+                <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button
-                variant="outline"
                 size="lg"
-                className="h-14 px-8 text-base font-semibold rounded-xl border-2 hover:bg-secondary/80 transition-all duration-300"
+                variant="outline"
+                className="h-14 px-8 rounded-full text-base font-semibold border-2"
+                onClick={() => scrollToSection("features")}
               >
-                <Play className="mr-2 h-4 w-4" />
-                Explore Features
+                Explore Platform
               </Button>
             </motion.div>
 
+            {/* Stats */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="flex items-center gap-8 pt-8 border-t border-border/50"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-border/50"
             >
-              <div>
-                <p className="text-3xl font-bold text-foreground">50+</p>
-                <p className="text-sm text-muted-foreground">Schools Trust Us</p>
-              </div>
-              <div className="w-px h-12 bg-border" />
-              <div>
-                <p className="text-3xl font-bold text-foreground">10K+</p>
-                <p className="text-sm text-muted-foreground">Students Growing</p>
-              </div>
-              <div className="w-px h-12 bg-border hidden sm:block" />
-              <div className="hidden sm:block">
-                <p className="text-3xl font-bold text-foreground">99%</p>
-                <p className="text-sm text-muted-foreground">Satisfaction Rate</p>
-              </div>
+              {[
+                { value: "500+", label: "Schools Trust Us" },
+                { value: "50K+", label: "Students Growing" },
+                { value: "98%", label: "Satisfaction" },
+              ].map((stat, i) => (
+                <div key={i} className="text-center lg:text-left">
+                  <div className="text-2xl md:text-3xl font-bold text-foreground">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
 
-          {/* Right side - Dashboard Mockups */}
+          {/* Right Visual - Book to Student Story */}
           <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative hidden lg:block"
+            style={{ y: bookY }}
+            className="relative hidden lg:flex items-center justify-center"
           >
-            <div className="relative w-full h-[600px] perspective-1000">
-              {/* Main dashboard card */}
-              <motion.div
-                style={{ y: y1 }}
-                className="absolute top-0 right-0 w-[90%] rounded-2xl overflow-hidden shadow-hover border border-border/50 bg-card"
-                whileHover={{ scale: 1.02, rotateY: -2 }}
-                transition={{ duration: 0.4 }}
-              >
-                <div className="p-4 border-b border-border/50 bg-muted/30">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                    <div className="w-3 h-3 rounded-full bg-soft-yellow" />
-                    <div className="w-3 h-3 rounded-full bg-soft-green" />
-                  </div>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="h-4 w-32 bg-muted rounded" />
-                      <div className="h-3 w-24 bg-muted/60 rounded" />
+            <motion.div
+              style={{ scale: bookScale, rotateY: bookRotateY }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative perspective-1000"
+            >
+              {/* Main Book/Knowledge Card */}
+              <div className="relative w-80 h-[420px] rounded-3xl bg-gradient-to-br from-card to-card/80 border border-border/50 shadow-card overflow-hidden">
+                {/* Book spine effect */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-primary/30 to-primary/10" />
+                
+                {/* Content inside */}
+                <div className="absolute inset-0 ml-3 p-6 flex flex-col">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-primary" />
                     </div>
-                    <div className="h-10 w-10 rounded-xl bg-primary/10" />
+                    <div>
+                      <div className="text-base font-semibold text-foreground">Today's Learning</div>
+                      <div className="text-xs text-muted-foreground">Mathematics • Class 10</div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="p-4 rounded-xl bg-muted/40 space-y-2">
-                        <div className="h-8 w-8 rounded-lg bg-primary/20" />
-                        <div className="h-3 w-16 bg-muted rounded" />
-                        <div className="h-5 w-12 bg-foreground/20 rounded" />
-                      </div>
+                  
+                  {/* Progress Section */}
+                  <div className="space-y-4 flex-1">
+                    {[
+                      { subject: "Algebra", progress: 85, color: "from-primary to-accent" },
+                      { subject: "Geometry", progress: 72, color: "from-emerald-500 to-emerald-400" },
+                      { subject: "Statistics", progress: 90, color: "from-amber-500 to-amber-400" },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 + i * 0.1 }}
+                      >
+                        <div className="flex justify-between text-sm mb-1.5">
+                          <span className="text-muted-foreground">{item.subject}</span>
+                          <span className="text-foreground font-medium">{item.progress}%</span>
+                        </div>
+                        <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${item.progress}%` }}
+                            transition={{ delay: 0.7 + i * 0.1, duration: 0.8 }}
+                            className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
+                          />
+                        </div>
+                      </motion.div>
                     ))}
                   </div>
-                  <div className="h-40 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 flex items-end p-4">
-                    <div className="flex items-end gap-2 w-full">
-                      {[40, 65, 45, 80, 55, 70, 50].map((h, i) => (
-                        <div
-                          key={i}
-                          className="flex-1 bg-primary/30 rounded-t"
-                          style={{ height: `${h}%` }}
-                        />
-                      ))}
+
+                  {/* Bottom Stats */}
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/50">
+                    <div className="p-3 rounded-xl bg-soft-green/50">
+                      <div className="text-lg font-bold text-foreground">94%</div>
+                      <div className="text-xs text-muted-foreground">Attendance</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-soft-purple/50">
+                      <div className="text-lg font-bold text-foreground">A+</div>
+                      <div className="text-xs text-muted-foreground">Grade</div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Secondary floating card */}
+              {/* Floating Teacher Card */}
               <motion.div
-                style={{ y: y2 }}
-                className="absolute bottom-16 -left-8 w-[280px] rounded-2xl p-5 shadow-card border border-border/50 bg-card/95 backdrop-blur-sm"
-                whileHover={{ scale: 1.04, rotate: 1 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, x: -40, y: -20 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                whileHover={{ scale: 1.03, y: -5 }}
+                className="absolute -left-20 top-8 w-52 p-4 rounded-2xl bg-card/95 backdrop-blur-sm border border-border/50 shadow-card"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-soft-green flex items-center justify-center">
-                    <div className="w-5 h-5 rounded-full bg-accent/60" />
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-soft-green flex items-center justify-center">
+                    <Users className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm">Attendance Today</p>
-                    <p className="text-xs text-muted-foreground">Real-time tracking</p>
+                    <div className="text-sm font-semibold text-foreground">Teacher</div>
+                    <div className="text-xs text-muted-foreground">Guiding Class 10A</div>
                   </div>
                 </div>
-                <div className="flex items-end justify-between">
-                  <p className="text-3xl font-bold">94.2%</p>
-                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                    +2.4%
-                  </span>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs text-emerald-600 font-medium">Live Session</span>
                 </div>
               </motion.div>
 
-              {/* Third floating card */}
+              {/* Floating Student Card */}
               <motion.div
-                style={{ y: y3 }}
-                className="absolute top-32 -left-4 w-[200px] rounded-2xl p-4 shadow-card border border-border/50 bg-card/95 backdrop-blur-sm"
-                whileHover={{ scale: 1.04, rotate: -1 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, x: 40, y: 20 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.6 }}
+                whileHover={{ scale: 1.03, y: 5 }}
+                className="absolute -right-16 bottom-16 w-52 p-4 rounded-2xl bg-card/95 backdrop-blur-sm border border-border/50 shadow-card"
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-soft-purple flex items-center justify-center">
-                    <div className="w-4 h-4 rounded bg-primary/40" />
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-soft-purple flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-primary" />
                   </div>
-                  <p className="font-medium text-sm">Staff Overview</p>
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">Student</div>
+                    <div className="text-xs text-muted-foreground">Learning actively</div>
+                  </div>
                 </div>
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full bg-muted border-2 border-card"
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Daily Progress</span>
+                    <span className="text-primary font-medium">+12%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "75%" }}
+                      transition={{ delay: 1, duration: 0.6 }}
+                      className="h-full rounded-full bg-primary"
                     />
-                  ))}
-                  <div className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center text-xs font-medium">
-                    +12
                   </div>
                 </div>
               </motion.div>
-            </div>
+
+              {/* Decorative glow effects */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-8 right-0 w-20 h-20 rounded-full bg-soft-yellow/60 blur-2xl"
+              />
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-8 left-0 w-24 h-24 rounded-full bg-soft-pink/60 blur-2xl"
+              />
+            </motion.div>
           </motion.div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
         <motion.div
@@ -247,7 +288,7 @@ const PremiumHero = () => {
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2"
         >
-          <div className="w-1 h-2 rounded-full bg-muted-foreground/50" />
+          <motion.div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
         </motion.div>
       </motion.div>
     </section>
