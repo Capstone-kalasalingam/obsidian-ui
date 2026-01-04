@@ -28,7 +28,6 @@ import {
   HelpCircle,
   Settings,
   Search,
-  Lightbulb,
   Calendar,
   BookMarked,
 } from "lucide-react";
@@ -48,7 +47,6 @@ const navItems = [
   { label: "Academic Calendar", href: "/principal/calendar", icon: Calendar },
   { label: "Students", href: "/principal/users", icon: GraduationCap },
   { label: "Teachers", href: "/principal/staff", icon: Users },
-  { label: "AI Insights", href: "/principal/ai-insights", icon: Lightbulb },
   { label: "Homework & Practice", href: "/principal/reports", icon: BookMarked },
   { label: "Classes & Subjects", href: "/principal/classes", icon: BookOpen },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },

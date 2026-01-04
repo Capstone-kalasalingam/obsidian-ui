@@ -23,6 +23,7 @@ import Reports from "./pages/principal/Reports";
 import PrincipalFees from "./pages/principal/Fees";
 import TeacherDetails from "./pages/principal/TeacherDetails";
 import UserManagement from "./pages/principal/UserManagement";
+import AcademicCalendar from "./pages/principal/AcademicCalendar";
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
 import TeacherStudyMaterial from "./pages/teacher/StudyMaterial";
@@ -137,6 +138,11 @@ const App = () => (
             <Route path="/principal/users" element={
               <ProtectedRoute allowedRoles={['school_admin']}>
                 <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/principal/calendar" element={
+              <ProtectedRoute allowedRoles={['school_admin']}>
+                <AcademicCalendar />
               </ProtectedRoute>
             } />
 
