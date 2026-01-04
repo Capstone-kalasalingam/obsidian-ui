@@ -1,90 +1,102 @@
-import { motion } from "framer-motion";
-import { Target, Layers, BarChart3, Zap } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { X, Target, Layers, BarChart3, Zap } from "lucide-react";
 
 const differences = [
   {
     icon: Target,
-    title: "Not marks-focused",
-    description: "We build understanding, not just scores.",
+    notThis: "Marks-focused ranking",
+    butThis: "Growth-focused guidance",
+    description: "We track progress, not just scores",
     color: "text-primary",
     bgColor: "bg-primary/10",
   },
   {
     icon: Layers,
-    title: "Not ERP clutter",
-    description: "Clean, purposeful features. No bloat.",
+    notThis: "ERP complexity",
+    butThis: "Simple clarity",
+    description: "Tools that work, not confuse",
     color: "text-accent",
     bgColor: "bg-accent/10",
   },
   {
     icon: BarChart3,
-    title: "Not student ranking",
-    description: "Individual growth over competition.",
+    notThis: "Student competition",
+    butThis: "Student development",
+    description: "Every child grows at their pace",
     color: "text-amber-600",
-    bgColor: "bg-amber-100",
+    bgColor: "bg-soft-yellow",
   },
   {
     icon: Zap,
-    title: "Not manual chaos",
-    description: "Automation that actually works.",
-    color: "text-pink-600",
-    bgColor: "bg-pink-100",
+    notThis: "Manual chaos",
+    butThis: "Automated harmony",
+    description: "Less admin work, more teaching",
+    color: "text-rose-600",
+    bgColor: "bg-soft-pink",
   },
 ];
 
 const WhyDifferentSection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
-    <section className="relative py-32 lg:py-40 overflow-hidden bg-background">
+    <section ref={ref} className="py-24 lg:py-32 bg-background relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-mesh opacity-20" />
+
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="max-w-3xl mx-auto text-center mb-16 lg:mb-20"
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <p className="text-sm font-medium text-primary mb-6 tracking-wide uppercase">
-            Why We're Different
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            Why Kalvion
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
             What Kalvion is{" "}
             <span className="text-muted-foreground">not</span>.
           </h2>
+          <p className="text-lg text-muted-foreground">
+            Focused on what truly matters in education
+          </p>
         </motion.div>
 
-        {/* Cards Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {differences.map((item, index) => (
+        {/* Differences Grid */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {differences.map((diff, i) => (
             <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                duration: 0.6,
-                delay: index * 0.1,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="group"
+              key={diff.notThis}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="group p-6 rounded-2xl bg-card border border-border/50 shadow-soft transition-all duration-300 hover:shadow-hover cursor-default"
             >
-              <div className="h-full p-8 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-hover hover:border-primary/20 transition-all duration-400">
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ duration: 0.3 }}
-                  className={`w-14 h-14 rounded-2xl ${item.bgColor} flex items-center justify-center mb-6`}
-                >
-                  <item.icon className={`w-7 h-7 ${item.color}`} />
-                </motion.div>
-
-                <h3 className="text-lg font-display font-semibold text-foreground mb-2">
-                  {item.title}
-                </h3>
-
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {item.description}
-                </p>
+              <div className="flex items-start gap-4">
+                <div className={`w-12 h-12 rounded-xl ${diff.bgColor} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110`}>
+                  <diff.icon className={`w-6 h-6 ${diff.color}`} />
+                </div>
+                <div className="flex-1">
+                  {/* Not this */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <X className="w-4 h-4 text-destructive/60" />
+                    <span className="text-sm text-muted-foreground line-through">
+                      {diff.notThis}
+                    </span>
+                  </div>
+                  {/* But this */}
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    {diff.butThis}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {diff.description}
+                  </p>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -92,18 +104,15 @@ const WhyDifferentSection = () => {
 
         {/* Bottom statement */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="text-center mt-16 lg:mt-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="text-center mt-16"
         >
-          <p className="text-xl lg:text-2xl font-display text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl font-display font-medium text-foreground">
             Kalvion is{" "}
-            <span className="text-foreground font-semibold">
-              clarity, structure, and growth
-            </span>{" "}
-            — designed for schools that care about real education.
+            <span className="text-gradient-primary">clarity, structure, and growth</span>{" "}
+            — designed for schools that care.
           </p>
         </motion.div>
       </div>

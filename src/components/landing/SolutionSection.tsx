@@ -1,37 +1,50 @@
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Eye, Users, TrendingUp, Calendar, Sparkles } from "lucide-react";
+import {
+  Shield,
+  Users,
+  TrendingUp,
+  Calendar,
+  Sparkles,
+  LayoutDashboard,
+} from "lucide-react";
 
 const features = [
   {
-    icon: Eye,
+    icon: Shield,
     title: "Admin Control & Visibility",
-    description: "Complete oversight of every aspect of your school operations.",
+    description: "Complete oversight of school operations",
     color: "bg-primary/10 text-primary",
   },
   {
     icon: Users,
     title: "Teacher-Guided Management",
-    description: "Empower teachers with tools that simplify class operations.",
-    color: "bg-soft-green text-accent",
+    description: "Empower teachers to lead classrooms",
+    color: "bg-soft-green text-emerald-600",
   },
   {
     icon: TrendingUp,
     title: "Student Growth Tracking",
-    description: "Monitor and nurture every student's educational journey.",
-    color: "bg-soft-purple text-primary",
+    description: "Monitor progress and achievements",
+    color: "bg-soft-yellow text-amber-600",
   },
   {
     icon: Calendar,
     title: "Academic Year Control",
-    description: "Seamless management of terms, promotions, and transitions.",
-    color: "bg-soft-yellow text-amber-600",
+    description: "Seamless promotions and transitions",
+    color: "bg-soft-pink text-rose-600",
   },
   {
     icon: Sparkles,
     title: "AI-Powered Insights",
-    description: "Intelligent guidance, not answers. Learning, not cheating.",
-    color: "bg-soft-pink text-pink-600",
+    description: "Guidance-focused, not shortcut-driven",
+    color: "bg-soft-purple text-primary",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Unified Dashboard",
+    description: "Everything you need in one place",
+    color: "bg-soft-indigo text-indigo-600",
   },
 ];
 
@@ -44,152 +57,134 @@ const SolutionSection = () => {
     offset: ["start end", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const dashboardY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const dashboardRotate = useTransform(scrollYProgress, [0, 1], [2, -2]);
 
   return (
     <section
       ref={containerRef}
-      className="relative py-32 lg:py-40 overflow-hidden"
+      id="features"
+      className="py-24 lg:py-32 bg-soft-bg relative overflow-hidden"
     >
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-soft-indigo/30 to-background" />
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
         {/* Header */}
-        <div className="max-w-3xl mx-auto text-center mb-20">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-sm font-medium text-primary mb-6 tracking-wide uppercase"
-          >
-            The Kalvion Solution
-          </motion.p>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight mb-6"
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            What Kalvion Does
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
             Everything your school needs.{" "}
             <span className="text-muted-foreground">Nothing it doesn't.</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg text-muted-foreground"
-          >
-            A unified platform designed with intention. Every feature serves a
-            purpose.
-          </motion.p>
-        </div>
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            A focused platform designed for clarity and control
+          </p>
+        </motion.div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {features.map((feature, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          {features.map((feature, i) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{
-                duration: 0.6,
-                delay: 0.3 + index * 0.1,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="group"
+              transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+              whileHover={{ y: -4 }}
+              className="group p-6 rounded-2xl bg-card border border-border/50 shadow-soft transition-all duration-300 hover:shadow-hover cursor-default"
             >
-              <div className="card-premium p-8 h-full hover:border-primary/30 transition-all duration-400">
-                <div
-                  className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <feature.icon className="w-6 h-6" />
-                </div>
-
-                <h3 className="text-xl font-display font-semibold text-foreground mb-3">
-                  {feature.title}
-                </h3>
-
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
+              <div
+                className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}
+              >
+                <feature.icon className="w-6 h-6" />
               </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </div>
 
-        {/* Floating dashboard preview */}
+        {/* Dashboard Preview */}
         <motion.div
-          style={{ y }}
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="mt-20 lg:mt-28 relative"
+          style={{ y: dashboardY, rotate: dashboardRotate }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={isInView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="relative max-w-4xl mx-auto"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" />
-
-          <div className="max-w-5xl mx-auto">
-            <div className="rounded-3xl overflow-hidden shadow-hover border border-border/50 bg-card">
-              <div className="p-4 border-b border-border/50 bg-muted/30 flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
+          <div className="relative rounded-2xl overflow-hidden shadow-card border border-border/50 bg-card p-6">
+            {/* Mock Dashboard Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <LayoutDashboard className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="px-4 py-1 rounded-full bg-muted text-xs text-muted-foreground">
-                    kalvion.dashboard
-                  </div>
+                <div>
+                  <h4 className="font-semibold text-foreground">School Dashboard</h4>
+                  <p className="text-xs text-muted-foreground">Real-time overview</p>
                 </div>
               </div>
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                <div className="w-3 h-3 rounded-full bg-soft-yellow" />
+                <div className="w-3 h-3 rounded-full bg-soft-green" />
+              </div>
+            </div>
 
-              <div className="p-8 lg:p-12">
-                <div className="grid grid-cols-4 gap-6 mb-8">
-                  {[
-                    { label: "Total Students", value: "2,847" },
-                    { label: "Attendance Rate", value: "94.2%" },
-                    { label: "Active Teachers", value: "126" },
-                    { label: "Classes Today", value: "48" },
-                  ].map((stat, i) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={isInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
-                      className="text-center p-4 rounded-xl bg-muted/40"
-                    >
-                      <p className="text-2xl lg:text-3xl font-bold text-foreground mb-1">
-                        {stat.value}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div className="h-48 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 flex items-end p-6">
-                  <div className="flex items-end gap-3 w-full">
-                    {[35, 55, 45, 70, 60, 85, 75, 90, 80, 65, 70, 55].map(
-                      (h, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          animate={isInView ? { height: `${h}%` } : {}}
-                          transition={{
-                            duration: 0.8,
-                            delay: 1.2 + i * 0.05,
-                            ease: [0.16, 1, 0.3, 1],
-                          }}
-                          className="flex-1 bg-primary/40 rounded-t-md"
-                        />
-                      )
-                    )}
+            {/* Mock Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {[
+                { label: "Total Students", value: "1,247", change: "+12%" },
+                { label: "Attendance Today", value: "94.2%", change: "+2.1%" },
+                { label: "Active Teachers", value: "48", change: "—" },
+                { label: "Classes Running", value: "32", change: "+4" },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  className="p-4 rounded-xl bg-muted/50"
+                >
+                  <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-bold text-foreground">{stat.value}</span>
+                    <span className="text-xs text-primary">{stat.change}</span>
                   </div>
-                </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Mock Chart Area */}
+            <div className="h-36 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 flex items-end p-4">
+              <div className="flex items-end gap-2 w-full">
+                {[40, 65, 45, 80, 55, 70, 60, 85, 50, 75].map((h, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ height: 0 }}
+                    animate={isInView ? { height: `${h}%` } : {}}
+                    transition={{ delay: 0.8 + i * 0.05, duration: 0.6 }}
+                    className="flex-1 bg-primary/30 rounded-t"
+                  />
+                ))}
               </div>
             </div>
           </div>
+
+          {/* Glow effect */}
+          <div className="absolute -inset-4 bg-primary/5 rounded-3xl blur-2xl -z-10" />
         </motion.div>
       </div>
     </section>

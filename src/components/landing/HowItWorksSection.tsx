@@ -1,148 +1,136 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Settings, BookOpen, TrendingUp, MessageSquare } from "lucide-react";
+import { Building2, GraduationCap, BookOpen, Users } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: Settings,
+    icon: Building2,
     title: "Admin Creates Structure",
-    description:
-      "Principals set up classes, assign teachers, and define the academic year. Complete control from day one.",
-    color: "bg-primary",
+    description: "Set up academic years, classes, and staff with complete control.",
+    color: "from-primary to-primary/70",
   },
   {
     number: "02",
-    icon: BookOpen,
+    icon: GraduationCap,
     title: "Teachers Manage Classes",
-    description:
-      "Attendance, marks, study materials, and daily tasks. Everything a teacher needs, simplified.",
-    color: "bg-accent",
+    description: "Track attendance, enter marks, and guide students effectively.",
+    color: "from-emerald-500 to-emerald-400",
   },
   {
     number: "03",
-    icon: TrendingUp,
-    title: "Students Grow Consistently",
-    description:
-      "Personalized learning paths, AI-guided study assistance, and clear progress tracking.",
-    color: "bg-amber-500",
+    icon: BookOpen,
+    title: "Students Learn Consistently",
+    description: "Receive guidance, track progress, and grow with clarity.",
+    color: "from-amber-500 to-amber-400",
   },
   {
     number: "04",
-    icon: MessageSquare,
+    icon: Users,
     title: "Parents Stay Informed",
-    description:
-      "Real-time updates on attendance, performance, fees, and announcements. Always connected.",
-    color: "bg-pink-500",
+    description: "Get real-time updates on attendance, marks, and announcements.",
+    color: "from-rose-500 to-rose-400",
   },
 ];
 
 const HowItWorksSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
 
-  const lineHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
+  const lineHeight = useTransform(scrollYProgress, [0.15, 0.85], ["0%", "100%"]);
 
   return (
     <section
       ref={containerRef}
-      className="relative py-32 lg:py-40 overflow-hidden bg-background"
+      id="how-it-works"
+      className="py-24 lg:py-32 bg-background relative overflow-hidden"
     >
+      {/* Background decoration */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-mesh opacity-30 blur-3xl" />
+
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
-          className="max-w-3xl mx-auto text-center mb-20 lg:mb-28"
+          className="text-center max-w-3xl mx-auto mb-20"
         >
-          <p className="text-sm font-medium text-primary mb-6 tracking-wide uppercase">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             How It Works
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground leading-tight">
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
             Four pillars.{" "}
             <span className="text-muted-foreground">One unified system.</span>
           </h2>
+          <p className="text-lg text-muted-foreground">
+            A seamless journey from administration to learning
+          </p>
         </motion.div>
 
-        {/* Steps with connecting line */}
+        {/* Steps Timeline */}
         <div className="relative max-w-4xl mx-auto">
-          {/* Animated line */}
-          <div className="absolute left-8 lg:left-1/2 top-0 bottom-0 w-px bg-border hidden md:block">
+          {/* Animated connecting line */}
+          <div className="absolute left-8 lg:left-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block">
             <motion.div
               style={{ height: lineHeight }}
-              className="w-full bg-gradient-to-b from-primary via-accent to-pink-500"
+              className="w-full bg-gradient-to-b from-primary via-emerald-500 via-amber-500 to-rose-500"
             />
           </div>
 
           {/* Steps */}
-          <div className="space-y-16 lg:space-y-24">
-            {steps.map((step, index) => (
+          <div className="space-y-12 lg:space-y-20">
+            {steps.map((step, i) => (
               <motion.div
                 key={step.number}
                 initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.7,
-                  delay: 0.1,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className={`relative flex flex-col lg:flex-row items-center gap-8 lg:gap-16 ${
-                  index % 2 === 1 ? "lg:flex-row-reverse" : ""
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.2 + i * 0.12 }}
+                className={`relative flex items-center gap-8 lg:gap-16 ${
+                  i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
                 }`}
               >
-                {/* Number indicator */}
-                <div className="absolute left-8 lg:left-1/2 -translate-x-1/2 hidden md:flex items-center justify-center">
+                {/* Step Number Circle */}
+                <div className="relative z-10 flex-shrink-0 hidden md:block">
                   <motion.div
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center shadow-glow z-10`}
+                    whileHover={{ scale: 1.1 }}
+                    className={`w-16 h-16 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-glow`}
                   >
                     <step.icon className="w-7 h-7 text-white" />
                   </motion.div>
+                  {/* Pulse effect */}
+                  <motion.div
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
+                    transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.3 }}
+                    className={`absolute inset-0 rounded-full bg-gradient-to-br ${step.color} -z-10`}
+                  />
                 </div>
 
-                {/* Content card */}
+                {/* Content Card */}
                 <div
                   className={`flex-1 ${
-                    index % 2 === 1 ? "lg:text-right" : ""
+                    i % 2 === 0 ? "lg:text-left lg:pr-16" : "lg:text-right lg:pl-16"
                   }`}
                 >
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.3 }}
-                    className="card-premium p-8 lg:p-10"
+                    className="p-6 rounded-2xl bg-card border border-border/50 shadow-soft"
                   >
-                    <div
-                      className={`flex items-center gap-4 mb-4 ${
-                        index % 2 === 1 ? "lg:flex-row-reverse" : ""
-                      }`}
-                    >
-                      <span className="text-4xl font-display font-bold text-muted-foreground/30">
-                        {step.number}
-                      </span>
-                      <div
-                        className={`w-12 h-12 rounded-xl ${step.color}/10 flex items-center justify-center md:hidden`}
-                      >
-                        <step.icon className={`w-6 h-6 ${step.color.replace('bg-', 'text-')}`} />
+                    <div className={`flex items-center gap-3 mb-3 ${i % 2 === 1 ? "lg:flex-row-reverse" : ""}`}>
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center md:hidden`}>
+                        <step.icon className="w-5 h-5 text-white" />
                       </div>
+                      <span className="text-xs font-bold text-primary">STEP {step.number}</span>
                     </div>
-
-                    <h3 className="text-2xl font-display font-semibold text-foreground mb-3">
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       {step.title}
                     </h3>
-
-                    <p className="text-muted-foreground leading-relaxed text-lg">
-                      {step.description}
-                    </p>
+                    <p className="text-muted-foreground">{step.description}</p>
                   </motion.div>
                 </div>
 

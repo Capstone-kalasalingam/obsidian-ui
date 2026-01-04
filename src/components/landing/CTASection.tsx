@@ -1,118 +1,130 @@
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
 
 const CTASection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
-    <section className="relative py-32 lg:py-40 overflow-hidden">
+    <section
+      ref={ref}
+      className="py-24 lg:py-32 relative overflow-hidden"
+    >
       {/* Dark gradient background */}
       <div className="absolute inset-0 bg-gradient-dark" />
+      
+      {/* Animated mesh overlay */}
+      <div className="absolute inset-0">
+        <motion.div
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary/10 blur-3xl"
+        />
+        <motion.div
+          animate={{
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-accent/10 blur-3xl"
+        />
+      </div>
 
-      {/* Animated gradient mesh */}
-      <motion.div
-        animate={{
-          backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            "radial-gradient(circle at 20% 30%, hsl(245 50% 40% / 0.4) 0%, transparent 40%), radial-gradient(circle at 80% 70%, hsl(265 40% 35% / 0.3) 0%, transparent 40%)",
-          backgroundSize: "200% 200%",
-        }}
-      />
-
-      {/* Floating shapes */}
-      <motion.div
-        animate={{ y: [-10, 10, -10], rotate: [0, 5, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-20 left-[15%] w-32 h-32 rounded-full bg-primary/10 blur-2xl"
-      />
-      <motion.div
-        animate={{ y: [10, -10, 10], rotate: [0, -5, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-20 right-[15%] w-40 h-40 rounded-full bg-primary/15 blur-2xl"
-      />
+      {/* Subtle floating shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.sin(i) * 20, 0],
+              opacity: [0.08, 0.15, 0.08],
+            }}
+            transition={{
+              duration: 6 + i * 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5,
+            }}
+            className="absolute w-32 h-32 rounded-full border border-white/5"
+            style={{
+              top: `${20 + i * 15}%`,
+              left: `${10 + i * 20}%`,
+            }}
+          />
+        ))}
+      </div>
 
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-white leading-tight mb-6"
-          >
-            See your school clearly.
-            <br />
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7 }}
+          className="text-center max-w-3xl mx-auto"
+        >
+          <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-white leading-tight mb-6">
+            See your school clearly.{" "}
             <span className="text-white/70">Lead confidently.</span>
-          </motion.h2>
+          </h2>
+          <p className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl mx-auto">
+            Join schools across the country that trust Kalvion for clarity,
+            control, and confidence in education.
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg lg:text-xl text-white/60 max-w-2xl mx-auto mb-12"
-          >
-            Join the growing number of schools transforming their operations with
-            Kalvion. Start your journey today.
-          </motion.p>
-
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Button
               size="lg"
-              className="h-14 px-8 text-base font-semibold rounded-xl bg-white text-foreground hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="h-14 px-8 rounded-full text-base font-semibold shadow-lg bg-white text-foreground hover:bg-white/90"
             >
               Request a Demo
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
             <Button
-              variant="outline"
               size="lg"
-              className="h-14 px-8 text-base font-semibold rounded-xl border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+              variant="outline"
+              className="h-14 px-8 rounded-full text-base font-semibold border-2 border-white/30 text-white hover:bg-white/10"
             >
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Talk to Us
+              <MessageCircle className="mr-2 w-4 h-4" />
+              Contact Us
             </Button>
           </motion.div>
 
           {/* Trust indicators */}
           <motion.div
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-16 pt-12 border-t border-white/10"
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-14 pt-10 border-t border-white/10"
           >
-            <p className="text-sm text-white/40 mb-6">
-              Trusted by forward-thinking schools
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-12">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.05 }}
-                  className="h-8 w-24 rounded bg-white/10 flex items-center justify-center"
-                >
-                  <span className="text-white/30 text-xs font-medium">
-                    School {i}
-                  </span>
-                </motion.div>
-              ))}
+            <p className="text-sm text-white/40 mb-5">Trusted by leading schools</p>
+            <div className="flex flex-wrap justify-center gap-6 lg:gap-10">
+              {["Delhi Public School", "St. Mary's Academy", "Modern School", "National Academy"].map(
+                (school, i) => (
+                  <motion.span
+                    key={school}
+                    initial={{ opacity: 0 }}
+                    animate={isInView ? { opacity: 1 } : {}}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="text-white/35 font-medium text-sm hover:text-white/55 transition-colors cursor-default"
+                  >
+                    {school}
+                  </motion.span>
+                )
+              )}
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
