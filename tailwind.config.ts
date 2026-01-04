@@ -55,6 +55,13 @@ export default {
         "soft-green": "hsl(var(--soft-green))",
         "soft-yellow": "hsl(var(--soft-yellow))",
         "soft-pink": "hsl(var(--soft-pink))",
+        // Kalvion brand colors
+        "kalvion-blue": "hsl(220 80% 55%)",
+        "kalvion-indigo": "hsl(240 60% 55%)",
+        "kalvion-purple": "hsl(258 60% 55%)",
+        "growth": "hsl(158 64% 42%)",
+        "learning": "hsl(220 80% 55%)",
+        "attention": "hsl(45 90% 55%)",
       },
       boxShadow: {
         soft: "var(--shadow-soft)",

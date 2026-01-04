@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Tooltip,
@@ -20,35 +21,46 @@ import {
   Menu,
   Bell,
   GraduationCap,
-  UserPlus,
-  UserCheck,
-  UserCog,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
   Sun,
   Moon,
   HelpCircle,
+  Settings,
+  Search,
+  Lightbulb,
+  Calendar,
+  BookMarked,
 } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
-  { label: "Users", href: "/principal/users", icon: UserCog },
-  { label: "Staff Management", href: "/principal/staff", icon: Users },
-  { label: "Add Staff", href: "/principal/add-staff", icon: UserPlus },
+  { label: "Academic Calendar", href: "/principal/calendar", icon: Calendar },
+  { label: "Students", href: "/principal/users", icon: GraduationCap },
+  { label: "Teachers", href: "/principal/staff", icon: Users },
+  { label: "AI Insights", href: "/principal/ai-insights", icon: Lightbulb },
+  { label: "Homework & Practice", href: "/principal/reports", icon: BookMarked },
   { label: "Classes & Subjects", href: "/principal/classes", icon: BookOpen },
-  { label: "Assign Teacher", href: "/principal/assign-class-teacher", icon: UserCheck },
-  { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },
+  { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
   { label: "Reports", href: "/principal/reports", icon: FileText },
-  { label: "Fees", href: "/principal/fees", icon: CreditCard },
+  { label: "Settings", href: "/principal/profile", icon: Settings },
 ];
 
 const bottomNavItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
-  { label: "Users", href: "/principal/users", icon: UserCog },
-  { label: "Staff", href: "/principal/staff", icon: Users },
+  { label: "Students", href: "/principal/users", icon: GraduationCap },
+  { label: "Teachers", href: "/principal/staff", icon: Users },
   { label: "Classes", href: "/principal/classes", icon: BookOpen },
 ];
 
@@ -56,11 +68,25 @@ const bottomMenuItems = [
   { label: "Help & Support", href: "/principal/profile", icon: HelpCircle },
 ];
 
+// Get page title based on route
+const getPageTitle = (pathname: string) => {
+  const route = navItems.find((item) => item.href === pathname);
+  if (route) return route.label;
+  if (pathname.includes("/add-staff")) return "Add Staff";
+  if (pathname.includes("/edit-staff")) return "Edit Staff";
+  if (pathname.includes("/assign-class-teacher")) return "Assign Class Teacher";
+  if (pathname.includes("/teacher/")) return "Teacher Details";
+  if (pathname.includes("/class-students")) return "Class Students";
+  if (pathname.includes("/class-subjects")) return "Class Subjects";
+  return "School Growth Dashboard";
+};
+
 const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -86,6 +112,8 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const pageTitle = getPageTitle(location.pathname);
+
   const renderSidebarContent = (collapsed = false) => (
     <TooltipProvider delayDuration={0}>
       {/* Logo Section */}
@@ -97,7 +125,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
           {!collapsed && (
             <div>
               <h1 className="font-bold text-white text-lg tracking-tight">Kalvion</h1>
-              <p className="text-[10px] text-white/60 font-medium tracking-wide">Admin Portal</p>
+              <p className="text-[10px] text-white/60 font-medium tracking-wide">Education Platform</p>
             </div>
           )}
         </div>
@@ -106,7 +134,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
       {/* Main Navigation */}
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto scrollbar-smooth">
         <div className={`text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2 ${collapsed ? 'text-center' : 'px-3'}`}>
-          {collapsed ? '•••' : 'Management'}
+          {collapsed ? '•••' : 'Menu'}
         </div>
         
         {navItems.map((item) => {
@@ -121,10 +149,10 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
                     navigate(item.href);
                     setMobileOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                     active
                       ? "bg-white text-primary shadow-lg shadow-white/20"
-                      : "text-white/80 hover:bg-white/10 hover:text-white"
+                      : "text-white/80 hover:bg-white/10 hover:text-white hover:scale-[1.02]"
                   } ${collapsed ? 'justify-center px-0' : ''}`}
                 >
                   <div className={`${active ? 'text-primary' : 'text-white/70 group-hover:text-white'} transition-colors`}>
@@ -136,7 +164,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
                     </div>
                   )}
                   {active && !collapsed && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   )}
                 </button>
               </TooltipTrigger>
@@ -200,10 +228,10 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
   );
 
   return (
-    <div className="min-h-screen flex bg-gradient-soft">
+    <div className="min-h-screen flex bg-gradient-soft w-full">
       {/* Desktop Sidebar */}
       <aside 
-        className={`hidden lg:flex flex-col bg-gradient-to-b from-[#6366f1] via-[#7c3aed] to-[#6366f1] transition-all duration-300 ease-in-out rounded-r-3xl shadow-2xl shadow-primary/20 relative ${
+        className={`hidden lg:flex flex-col bg-gradient-to-b from-[hsl(220,80%,55%)] via-[hsl(258,60%,55%)] to-[hsl(280,65%,50%)] transition-all duration-300 ease-in-out rounded-r-3xl shadow-2xl shadow-primary/20 relative ${
           sidebarCollapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -220,7 +248,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
 
       {/* Mobile Sidebar Drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-[#6366f1] via-[#7c3aed] to-[#6366f1] border-0">
+        <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-[hsl(220,80%,55%)] via-[hsl(258,60%,55%)] to-[hsl(280,65%,50%)] border-0">
           <div className="flex flex-col h-full">
             {renderSidebarContent(false)}
           </div>
@@ -229,8 +257,66 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
+        {/* Top Header - Desktop */}
+        <header className="hidden lg:flex h-16 bg-card/80 backdrop-blur-xl border-b border-border items-center justify-between px-6 sticky top-0 z-10">
+          <div className="flex items-center gap-6">
+            <h1 className="text-xl font-bold text-foreground">{pageTitle}</h1>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search students, teachers, classes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-80 bg-background/50 border-border/50 focus:border-primary/50"
+              />
+            </div>
+
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="relative hover-scale-soft">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-card"></span>
+            </Button>
+
+            {/* Profile Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover-scale-soft">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-gradient-to-br from-kalvion-blue to-kalvion-purple text-white text-sm">
+                      AD
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium text-sm">Admin</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/principal/profile")}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleDarkMode}>
+                  {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                  {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
         {/* Top Header - Mobile Only */}
-        <header className="lg:hidden h-16 bg-white/80 backdrop-blur-xl border-b flex items-center justify-between px-4 sticky top-0 z-10">
+        <header className="lg:hidden h-16 bg-card/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-4 sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setMobileOpen(true)}
@@ -239,7 +325,7 @@ const PrincipalNav = ({ children }: { children: React.ReactNode }) => {
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#7c3aed] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-kalvion-blue to-kalvion-purple flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-foreground">Kalvion</span>
