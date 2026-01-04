@@ -35,6 +35,7 @@ import TeacherClassProgress from "./pages/teacher/ClassProgress";
 import TeacherWeeklyReport from "./pages/teacher/WeeklyReport";
 import TeacherTimetable from "./pages/teacher/Timetable";
 import TeacherAnnouncements from "./pages/teacher/Announcements";
+import TeacherCommunication from "./pages/teacher/Communication";
 import TeacherProfile from "./pages/teacher/Profile";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentProfile from "./pages/student/Profile";
@@ -204,6 +205,11 @@ const App = () => (
             <Route path="/teacher/announcements" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <TeacherAnnouncements />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/communication" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherCommunication />
               </ProtectedRoute>
             } />
             <Route path="/teacher/profile" element={
