@@ -176,16 +176,33 @@ export function useStudents() {
 
   const fetchStudents = async () => {
     try {
-      const { data, error: studentsError } = await supabase
+      // Fetch students without profile join to avoid RLS issues
+      const { data: studentsData, error: studentsError } = await supabase
         .from("students")
         .select(`
           *,
-          profile:profiles!students_user_id_fkey(*),
           class:classes(*)
         `);
 
       if (studentsError) throw studentsError;
-      setStudents(data || []);
+
+      // Fetch profiles separately
+      const userIds = (studentsData || []).map((s) => s.user_id);
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("*")
+        .in("id", userIds);
+
+      const profilesMap = new Map(
+        (profilesData || []).map((p) => [p.id, p])
+      );
+
+      const enrichedStudents = (studentsData || []).map((s) => ({
+        ...s,
+        profile: profilesMap.get(s.user_id) || null,
+      }));
+
+      setStudents(enrichedStudents);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -201,6 +218,11 @@ export function useStudents() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "students" },
+        () => fetchStudents()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
         () => fetchStudents()
       )
       .subscribe();
