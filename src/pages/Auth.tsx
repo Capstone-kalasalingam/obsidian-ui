@@ -5,24 +5,44 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, GraduationCap, Eye, EyeOff } from 'lucide-react';
+import { Loader2, GraduationCap, Eye, EyeOff, UserCircle, Users, BookOpen, Shield } from 'lucide-react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  userId: z.string().min(1, 'Please enter your ID'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.string().min(1, 'Please select a role'),
 });
+
+type RoleOption = {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+  idPlaceholder: string;
+  idLabel: string;
+};
+
+const roleOptions: RoleOption[] = [
+  { value: 'school_admin', label: 'School Admin', icon: <Shield className="h-4 w-4" />, idPlaceholder: 'Enter your email', idLabel: 'Email' },
+  { value: 'teacher', label: 'Teacher', icon: <BookOpen className="h-4 w-4" />, idPlaceholder: 'Enter your Teacher ID (e.g., TCH001)', idLabel: 'Teacher ID' },
+  { value: 'student', label: 'Student', icon: <UserCircle className="h-4 w-4" />, idPlaceholder: 'Enter your Student ID', idLabel: 'Student ID' },
+  { value: 'parent', label: 'Parent', icon: <Users className="h-4 w-4" />, idPlaceholder: 'Enter your Parent ID', idLabel: 'Parent ID' },
+];
 
 const Auth = () => {
   const navigate = useNavigate();
   const { signIn, role, user } = useAuth();
-  const [email, setEmail] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ userId?: string; password?: string; role?: string }>({});
   const [loginSuccess, setLoginSuccess] = useState(false);
+
+  const selectedRoleOption = roleOptions.find(r => r.value === selectedRole);
 
   const redirectByRole = (userRole: AppRole) => {
     const routes: Record<AppRole, string> = {
@@ -46,12 +66,13 @@ const Auth = () => {
     setErrors({});
 
     // Validate input
-    const result = loginSchema.safeParse({ email, password });
+    const result = loginSchema.safeParse({ userId, password, role: selectedRole });
     if (!result.success) {
-      const fieldErrors: { email?: string; password?: string } = {};
+      const fieldErrors: { userId?: string; password?: string; role?: string } = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0] === 'email') fieldErrors.email = err.message;
+        if (err.path[0] === 'userId') fieldErrors.userId = err.message;
         if (err.path[0] === 'password') fieldErrors.password = err.message;
+        if (err.path[0] === 'role') fieldErrors.role = err.message;
       });
       setErrors(fieldErrors);
       return;
@@ -60,13 +81,24 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Convert ID to email format based on role
+      let email = userId;
+      if (selectedRole === 'teacher') {
+        email = `${userId.toLowerCase()}@school.local`;
+      } else if (selectedRole === 'student') {
+        email = `${userId.toLowerCase()}@student.school.local`;
+      } else if (selectedRole === 'parent') {
+        email = `${userId.toLowerCase()}@parent.school.local`;
+      }
+      // school_admin uses actual email
+
       const { error } = await signIn(email, password);
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please try again.');
+          toast.error('Invalid ID or password. Please try again.');
         } else if (error.message.includes('Email not confirmed')) {
-          toast.error('Please verify your email before logging in.');
+          toast.error('Please verify your account before logging in.');
         } else {
           toast.error(error.message);
         }
@@ -104,20 +136,44 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
+              {/* Role Selector */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>I am a</Label>
+                <Select value={selectedRole} onValueChange={setSelectedRole} disabled={loading}>
+                  <SelectTrigger className={errors.role ? 'border-destructive' : ''}>
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roleOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div className="flex items-center gap-2">
+                          {option.icon}
+                          <span>{option.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.role && (
+                  <p className="text-sm text-destructive">{errors.role}</p>
+                )}
+              </div>
+
+              {/* User ID Input */}
+              <div className="space-y-2">
+                <Label htmlFor="userId">{selectedRoleOption?.idLabel || 'ID'}</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={errors.email ? 'border-destructive' : ''}
-                  disabled={loading}
-                  autoComplete="email"
+                  id="userId"
+                  type={selectedRole === 'school_admin' ? 'email' : 'text'}
+                  placeholder={selectedRoleOption?.idPlaceholder || 'Enter your ID'}
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  className={errors.userId ? 'border-destructive' : ''}
+                  disabled={loading || !selectedRole}
+                  autoComplete={selectedRole === 'school_admin' ? 'email' : 'username'}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                {errors.userId && (
+                  <p className="text-sm text-destructive">{errors.userId}</p>
                 )}
               </div>
 
@@ -131,7 +187,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-                    disabled={loading}
+                    disabled={loading || !selectedRole}
                     autoComplete="current-password"
                   />
                   <button
@@ -148,7 +204,7 @@ const Auth = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
+              <Button type="submit" className="w-full h-12 text-base" disabled={loading || !selectedRole}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
