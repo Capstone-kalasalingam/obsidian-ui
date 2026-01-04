@@ -74,6 +74,9 @@ export default function TeacherStudents() {
     fullName: "",
     password: "",
     rollNumber: "",
+    villageAddress: "",
+    residenceType: "",
+    parentPhone: "",
     classId: "",
     parentId: "",
   });
@@ -172,6 +175,9 @@ export default function TeacherStudents() {
       fullName: "",
       password: "",
       rollNumber: "",
+      villageAddress: "",
+      residenceType: "",
+      parentPhone: "",
       classId: "",
       parentId: "",
     });
@@ -329,7 +335,7 @@ export default function TeacherStudents() {
 
         {/* Add Student Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
               <DialogDescription>
@@ -376,6 +382,43 @@ export default function TeacherStudents() {
                   placeholder="e.g., 101"
                   value={formData.rollNumber}
                   onChange={(e) => handleInputChange("rollNumber", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="villageAddress">Village/Address</Label>
+                <Input
+                  id="villageAddress"
+                  placeholder="Enter village or address"
+                  value={formData.villageAddress}
+                  onChange={(e) => handleInputChange("villageAddress", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="residenceType">Residence Type *</Label>
+                <Select
+                  value={formData.residenceType}
+                  onValueChange={(value) => handleInputChange("residenceType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day_scholar">Day Scholar</SelectItem>
+                    <SelectItem value="hostler">Hostler</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="parentPhone">Parent Phone Number</Label>
+                <Input
+                  id="parentPhone"
+                  type="tel"
+                  placeholder="e.g., 9876543210"
+                  value={formData.parentPhone}
+                  onChange={(e) => handleInputChange("parentPhone", e.target.value)}
                 />
               </div>
 
