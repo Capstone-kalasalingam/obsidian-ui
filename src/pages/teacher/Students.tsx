@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import TeacherNav from "@/components/teacher/TeacherNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Plus, Search, Users, Edit2, Trash2, UserPlus } from "lucide-react";
+import { Plus, Search, Users, Edit2, Trash2, UserPlus, Upload, Download, FileSpreadsheet } from "lucide-react";
 
 interface Student {
   id: string;
@@ -71,6 +71,16 @@ interface ClassInfo {
   section: string;
 }
 
+interface CSVStudent {
+  studentId: string;
+  fullName: string;
+  password: string;
+  rollNumber: string;
+  villageAddress: string;
+  residenceType: string;
+  parentPhone: string;
+}
+
 export default function TeacherStudents() {
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
@@ -81,8 +91,13 @@ export default function TeacherStudents() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [csvData, setCsvData] = useState<CSVStudent[]>([]);
+  const [bulkImportClassId, setBulkImportClassId] = useState("");
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0, errors: [] as string[] });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     studentId: "",
@@ -416,6 +431,149 @@ export default function TeacherStudents() {
     s.rollNumber.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        toast.error("CSV file must have a header row and at least one data row");
+        return;
+      }
+
+      const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+      const requiredHeaders = ['studentid', 'fullname', 'password'];
+      const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+      
+      if (missingHeaders.length > 0) {
+        toast.error(`Missing required columns: ${missingHeaders.join(', ')}`);
+        return;
+      }
+
+      const parsedData: CSVStudent[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length < headers.length) continue;
+
+        const row: any = {};
+        headers.forEach((header, idx) => {
+          row[header] = values[idx] || '';
+        });
+
+        parsedData.push({
+          studentId: row.studentid || '',
+          fullName: row.fullname || '',
+          password: row.password || '',
+          rollNumber: row.rollnumber || '',
+          villageAddress: row.villageaddress || row.address || '',
+          residenceType: row.residencetype || 'day_scholar',
+          parentPhone: row.parentphone || row.phone || '',
+        });
+      }
+
+      if (parsedData.length === 0) {
+        toast.error("No valid student data found in CSV");
+        return;
+      }
+
+      setCsvData(parsedData);
+      toast.success(`${parsedData.length} students found in CSV`);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = async () => {
+    if (!bulkImportClassId) {
+      toast.error("Please select a class for bulk import");
+      return;
+    }
+
+    if (csvData.length === 0) {
+      toast.error("No CSV data to import");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setImportProgress({ current: 0, total: csvData.length, errors: [] });
+
+    const errors: string[] = [];
+    let successCount = 0;
+
+    for (let i = 0; i < csvData.length; i++) {
+      const student = csvData[i];
+      setImportProgress(prev => ({ ...prev, current: i + 1 }));
+
+      if (!student.studentId || !student.fullName || !student.password) {
+        errors.push(`Row ${i + 1}: Missing required fields (studentId, fullName, or password)`);
+        continue;
+      }
+
+      try {
+        const response = await supabase.functions.invoke("create-user", {
+          body: {
+            studentId: student.studentId,
+            password: student.password,
+            fullName: student.fullName,
+            role: "student",
+            classId: bulkImportClassId,
+            rollNumber: student.rollNumber,
+            villageAddress: student.villageAddress,
+            residenceType: student.residenceType || "day_scholar",
+            parentPhone: student.parentPhone,
+            parentIds: [],
+          },
+        });
+
+        if (response.error) {
+          errors.push(`Row ${i + 1} (${student.studentId}): ${response.error.message}`);
+        } else {
+          successCount++;
+        }
+      } catch (error: any) {
+        errors.push(`Row ${i + 1} (${student.studentId}): ${error.message || 'Unknown error'}`);
+      }
+    }
+
+    setImportProgress(prev => ({ ...prev, errors }));
+    setIsSubmitting(false);
+
+    if (successCount > 0) {
+      toast.success(`Successfully imported ${successCount} students`);
+      fetchData();
+    }
+
+    if (errors.length > 0) {
+      toast.error(`${errors.length} errors occurred during import`);
+    }
+
+    if (successCount === csvData.length) {
+      setIsBulkImportDialogOpen(false);
+      setCsvData([]);
+      setBulkImportClassId("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const downloadCSVTemplate = () => {
+    const headers = "studentId,fullName,password,rollNumber,villageAddress,residenceType,parentPhone";
+    const example = "STU001,John Doe,password123,1,Village Name,day_scholar,9876543210";
+    const csvContent = `${headers}\n${example}`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'students_template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <TeacherNav>
       <div className="container mx-auto px-4 py-6 max-w-5xl">
@@ -425,10 +583,16 @@ export default function TeacherStudents() {
             <h1 className="text-2xl font-bold">Student Management</h1>
             <p className="text-muted-foreground">Add and manage students in your classes</p>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Student
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsBulkImportDialogOpen(true)} className="gap-2">
+              <Upload className="w-4 h-4" />
+              Bulk Import
+            </Button>
+            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Student
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -794,6 +958,166 @@ export default function TeacherStudents() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Bulk Import Dialog */}
+        <Dialog open={isBulkImportDialogOpen} onOpenChange={(open) => {
+          setIsBulkImportDialogOpen(open);
+          if (!open) {
+            setCsvData([]);
+            setBulkImportClassId("");
+            setImportProgress({ current: 0, total: 0, errors: [] });
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
+          }
+        }}>
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5" />
+                Bulk Import Students
+              </DialogTitle>
+              <DialogDescription>
+                Upload a CSV file to import multiple students at once
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              {/* Download Template */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm">
+                  <p className="font-medium">Download CSV Template</p>
+                  <p className="text-muted-foreground text-xs">Use this template to format your data</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Template
+                </Button>
+              </div>
+
+              {/* Class Selection */}
+              <div className="space-y-2">
+                <Label>Select Class *</Label>
+                <Select
+                  value={bulkImportClassId}
+                  onValueChange={setBulkImportClassId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose class for all imported students" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignedClasses.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} - {c.section}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* File Upload */}
+              <div className="space-y-2">
+                <Label>Upload CSV File *</Label>
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Required columns: studentId, fullName, password. Optional: rollNumber, villageAddress, residenceType, parentPhone
+                </p>
+              </div>
+
+              {/* Preview */}
+              {csvData.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Preview ({csvData.length} students)</Label>
+                  <div className="max-h-40 overflow-y-auto border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs">Student ID</TableHead>
+                          <TableHead className="text-xs">Name</TableHead>
+                          <TableHead className="text-xs">Roll No</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {csvData.slice(0, 5).map((student, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell className="text-xs py-1">{student.studentId}</TableCell>
+                            <TableCell className="text-xs py-1">{student.fullName}</TableCell>
+                            <TableCell className="text-xs py-1">{student.rollNumber || '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                        {csvData.length > 5 && (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-xs py-1 text-center text-muted-foreground">
+                              ...and {csvData.length - 5} more
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+
+              {/* Progress */}
+              {isSubmitting && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Importing...</span>
+                    <span>{importProgress.current} / {importProgress.total}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Errors */}
+              {importProgress.errors.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-destructive">Import Errors</Label>
+                  <div className="max-h-32 overflow-y-auto p-2 bg-destructive/10 rounded-lg text-xs space-y-1">
+                    {importProgress.errors.map((error, idx) => (
+                      <p key={idx} className="text-destructive">{error}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsBulkImportDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleBulkImport} 
+                disabled={isSubmitting || csvData.length === 0 || !bulkImportClassId}
+                className="gap-2"
+              >
+                {isSubmitting ? (
+                  <>Importing...</>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" />
+                    Import {csvData.length} Students
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </TeacherNav>
   );
