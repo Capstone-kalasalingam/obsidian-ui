@@ -46,8 +46,7 @@ const navItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
   { label: "Academic Years", href: "/principal/academic-years", icon: CalendarRange },
   { label: "Academic Calendar", href: "/principal/calendar", icon: Calendar },
-  { label: "Students", href: "/principal/users", icon: GraduationCap },
-  { label: "Teachers", href: "/principal/staff", icon: Users },
+  { label: "Teachers", href: "/principal/users", icon: Users },
   { label: "Classes & Subjects", href: "/principal/classes", icon: BookOpen },
   { label: "Announcements", href: "/principal/announcements", icon: Megaphone },
   { label: "Attendance", href: "/principal/attendance", icon: ClipboardCheck },
@@ -57,9 +56,9 @@ const navItems = [
 
 const bottomNavItems = [
   { label: "Dashboard", href: "/principal/dashboard", icon: LayoutDashboard },
-  { label: "Students", href: "/principal/users", icon: GraduationCap },
-  { label: "Teachers", href: "/principal/staff", icon: Users },
+  { label: "Teachers", href: "/principal/users", icon: Users },
   { label: "Classes", href: "/principal/classes", icon: BookOpen },
+  { label: "Reports", href: "/principal/reports", icon: FileText },
 ];
 
 const bottomMenuItems = [
