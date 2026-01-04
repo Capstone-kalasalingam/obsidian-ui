@@ -240,6 +240,9 @@ export default function TeacherStudents() {
           role: "student",
           classId: formData.classId,
           rollNumber: formData.rollNumber,
+          villageAddress: formData.villageAddress,
+          residenceType: formData.residenceType || "day_scholar",
+          parentPhone: formData.parentPhone,
           parentIds: formData.parentId ? [formData.parentId] : [],
         },
       });
