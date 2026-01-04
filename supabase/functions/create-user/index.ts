@@ -12,6 +12,10 @@ interface CreateUserRequest {
   fullName: string;
   role: "student" | "parent" | "teacher" | "school_admin";
   phone?: string;
+  // Teacher-specific fields
+  employeeId?: string;
+  subjectIds?: string[];
+  classIds?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -73,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Parse request body
-    const { email, password, fullName, role, phone }: CreateUserRequest = await req.json();
+    const { email, password, fullName, role, phone, employeeId, subjectIds, classIds }: CreateUserRequest = await req.json();
 
     // Validate input
     if (!email || !password || !fullName || !role) {
@@ -149,13 +153,40 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Create role-specific record
     if (role === "teacher") {
-      const { error: teacherError } = await supabaseAdmin
+      const { data: teacherData, error: teacherError } = await supabaseAdmin
         .from("teachers")
         .insert({
           user_id: newUser.user.id,
-        });
+          employee_id: employeeId || null,
+        })
+        .select()
+        .single();
+      
       if (teacherError) {
         console.error("Error creating teacher record:", teacherError);
+      } else if (teacherData && subjectIds && classIds && subjectIds.length > 0 && classIds.length > 0) {
+        // Create teacher assignments for each class-subject combination
+        const assignments = [];
+        for (const classId of classIds) {
+          for (const subjectId of subjectIds) {
+            assignments.push({
+              teacher_id: teacherData.id,
+              class_id: classId,
+              subject_id: subjectId,
+              is_class_teacher: false,
+            });
+          }
+        }
+        
+        if (assignments.length > 0) {
+          const { error: assignmentError } = await supabaseAdmin
+            .from("teacher_assignments")
+            .insert(assignments);
+          
+          if (assignmentError) {
+            console.error("Error creating teacher assignments:", assignmentError);
+          }
+        }
       }
     } else if (role === "student") {
       // For students, we'd need a class_id which should be passed in
