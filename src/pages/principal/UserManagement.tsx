@@ -46,10 +46,9 @@ import {
 } from '@/components/ui/collapsible';
 
 const createTeacherSchema = z.object({
-  teacherCode: z.string().min(3, 'Teacher Code must be at least 3 characters'),
+  teacherId: z.string().min(3, 'Teacher ID must be at least 3 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
-  employeeId: z.string().min(1, 'Employee ID is required'),
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
@@ -99,10 +98,9 @@ const UserManagement = () => {
 
   // Form data
   const [formData, setFormData] = useState({
-    teacherCode: '',
+    teacherId: '',
     password: '',
     fullName: '',
-    employeeId: '',
     phone: '',
   });
 
@@ -182,10 +180,9 @@ const UserManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      teacherCode: '',
+      teacherId: '',
       password: '',
       fullName: '',
-      employeeId: '',
       phone: '',
     });
     setSelectedSubjects([]);
@@ -223,12 +220,11 @@ const UserManagement = () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
-          teacherCode: formData.teacherCode,
+          teacherId: formData.teacherId,
           password: formData.password,
           fullName: formData.fullName,
           role: 'teacher',
           phone: formData.phone,
-          employeeId: formData.employeeId,
           subjectIds: selectedSubjects,
           classIds: selectedClasses,
         },
@@ -273,10 +269,10 @@ const UserManagement = () => {
 
       if (profileError) throw profileError;
 
-      // Update teacher employee_id
+      // Update teacher record (teacher ID is stored as employee_id in database)
       const { error: teacherError } = await supabase
         .from('teachers')
-        .update({ employee_id: formData.employeeId })
+        .update({ employee_id: formData.teacherId })
         .eq('id', selectedTeacher.id);
 
       if (teacherError) throw teacherError;
@@ -356,10 +352,9 @@ const UserManagement = () => {
   const openEditDialog = (teacher: Teacher) => {
     setSelectedTeacher(teacher);
     setFormData({
-      teacherCode: teacher.profile?.email?.split('@')[0] || '',
+      teacherId: teacher.profile?.email?.split('@')[0] || '',
       password: '',
       fullName: teacher.profile?.full_name || '',
-      employeeId: teacher.employee_id || '',
       phone: teacher.profile?.phone || '',
     });
     
@@ -555,8 +550,7 @@ const UserManagement = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Employee ID</TableHead>
-                      <TableHead>Teacher Code</TableHead>
+                      <TableHead>Teacher ID</TableHead>
                       <TableHead>Subjects</TableHead>
                       <TableHead>Classes</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -569,10 +563,7 @@ const UserManagement = () => {
                           {teacher.profile?.full_name || 'N/A'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{teacher.employee_id || 'N/A'}</Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {teacher.profile?.email?.split('@')[0] || 'N/A'}
+                          <Badge variant="outline">{teacher.profile?.email?.split('@')[0] || 'N/A'}</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
@@ -658,29 +649,16 @@ const UserManagement = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="employeeId">Employee ID *</Label>
+                  <Label htmlFor="teacherId">Teacher ID *</Label>
                   <Input
-                    id="employeeId"
-                    placeholder="e.g., TCH-001"
-                    value={formData.employeeId}
-                    onChange={(e) => handleInputChange('employeeId', e.target.value)}
-                    className={errors.employeeId ? 'border-destructive' : ''}
+                    id="teacherId"
+                    placeholder="Enter teacher ID"
+                    value={formData.teacherId}
+                    onChange={(e) => handleInputChange('teacherId', e.target.value)}
+                    className={errors.teacherId ? 'border-destructive' : ''}
                     disabled={formLoading}
                   />
-                  {errors.employeeId && <p className="text-sm text-destructive">{errors.employeeId}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="teacherCode">Teacher Code *</Label>
-                  <Input
-                    id="teacherCode"
-                    placeholder="Enter teacher code"
-                    value={formData.teacherCode}
-                    onChange={(e) => handleInputChange('teacherCode', e.target.value)}
-                    className={errors.teacherCode ? 'border-destructive' : ''}
-                    disabled={formLoading}
-                  />
-                  {errors.teacherCode && <p className="text-sm text-destructive">{errors.teacherCode}</p>}
+                  {errors.teacherId && <p className="text-sm text-destructive">{errors.teacherId}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -827,26 +805,15 @@ const UserManagement = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="edit-employeeId">Employee ID *</Label>
-                  <Input
-                    id="edit-employeeId"
-                    placeholder="e.g., TCH-001"
-                    value={formData.employeeId}
-                    onChange={(e) => handleInputChange('employeeId', e.target.value)}
-                    disabled={formLoading}
-                  />
-                </div>
-
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="edit-teacherCode">Teacher Code</Label>
+                  <Label htmlFor="edit-teacherId">Teacher ID</Label>
                   <Input
-                    id="edit-teacherCode"
-                    value={formData.teacherCode}
+                    id="edit-teacherId"
+                    value={formData.teacherId}
                     disabled
                     className="bg-muted"
                   />
-                  <p className="text-xs text-muted-foreground">Teacher code cannot be changed</p>
+                  <p className="text-xs text-muted-foreground">Teacher ID cannot be changed</p>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

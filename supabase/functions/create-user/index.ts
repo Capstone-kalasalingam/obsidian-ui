@@ -8,13 +8,12 @@ const corsHeaders = {
 
 interface CreateUserRequest {
   email?: string;
-  teacherCode?: string;
+  teacherId?: string;
   password: string;
   fullName: string;
   role: "student" | "parent" | "teacher" | "school_admin";
   phone?: string;
   // Teacher-specific fields
-  employeeId?: string;
   subjectIds?: string[];
   classIds?: string[];
 }
@@ -78,13 +77,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Parse request body
-    const { email, teacherCode, password, fullName, role, phone, employeeId, subjectIds, classIds }: CreateUserRequest = await req.json();
+    const { email, teacherId, password, fullName, role, phone, subjectIds, classIds }: CreateUserRequest = await req.json();
 
-    // Determine the email to use - for teachers, generate from teacherCode
+    // Determine the email to use - for teachers, generate from teacherId
     let userEmail = email;
-    if (role === "teacher" && teacherCode) {
-      // Generate email from teacher code (e.g., "TCH001" -> "tch001@school.local")
-      userEmail = `${teacherCode.toLowerCase().replace(/\s+/g, '')}@school.local`;
+    if (role === "teacher" && teacherId) {
+      // Generate email from teacher ID (e.g., "TCH001" -> "tch001@school.local")
+      userEmail = `${teacherId.toLowerCase().replace(/\s+/g, '')}@school.local`;
     }
 
     // Validate input
@@ -165,7 +164,7 @@ const handler = async (req: Request): Promise<Response> => {
         .from("teachers")
         .insert({
           user_id: newUser.user.id,
-          employee_id: employeeId || null,
+          employee_id: teacherId || null,
         })
         .select()
         .single();
