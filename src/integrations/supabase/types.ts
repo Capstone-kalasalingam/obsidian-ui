@@ -273,6 +273,7 @@ export type Database = {
           occupation: string | null
           updated_at: string | null
           user_id: string
+          village_address: string | null
         }
         Insert: {
           created_at?: string | null
@@ -280,6 +281,7 @@ export type Database = {
           occupation?: string | null
           updated_at?: string | null
           user_id: string
+          village_address?: string | null
         }
         Update: {
           created_at?: string | null
@@ -287,6 +289,7 @@ export type Database = {
           occupation?: string | null
           updated_at?: string | null
           user_id?: string
+          village_address?: string | null
         }
         Relationships: [
           {

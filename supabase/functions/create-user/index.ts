@@ -27,6 +27,7 @@ interface CreateUserRequest {
   parentPhone?: string;
   // Parent-specific fields
   occupation?: string;
+  // villageAddress is shared with parent
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -333,6 +334,7 @@ const handler = async (req: Request): Promise<Response> => {
         .insert({
           user_id: newUser.user.id,
           occupation: occupation || null,
+          village_address: villageAddress || null,
         });
       if (parentError) {
         console.error("Error creating parent record:", parentError);
