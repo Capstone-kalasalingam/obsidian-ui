@@ -33,6 +33,7 @@ interface Parent {
   parentId: string;
   phone: string;
   occupation: string;
+  villageAddress: string;
   linkedStudents: string[];
 }
 
@@ -50,6 +51,7 @@ export default function TeacherParents() {
     password: "",
     phone: "",
     occupation: "",
+    villageAddress: "",
   });
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export default function TeacherParents() {
         id,
         user_id,
         occupation,
+        village_address,
         profiles!parents_user_id_fkey (full_name, email, phone),
         student_parents (
           students (
@@ -84,6 +87,7 @@ export default function TeacherParents() {
         parentId: p.profiles?.email?.split("@")[0]?.toUpperCase() || "",
         phone: p.profiles?.phone || "",
         occupation: p.occupation || "",
+        villageAddress: p.village_address || "",
         linkedStudents: p.student_parents?.map((sp: any) => 
           sp.students?.profiles?.full_name
         ).filter(Boolean) || [],
@@ -105,6 +109,7 @@ export default function TeacherParents() {
       password: "",
       phone: "",
       occupation: "",
+      villageAddress: "",
     });
   };
 
@@ -125,6 +130,7 @@ export default function TeacherParents() {
           role: "parent",
           phone: formData.phone,
           occupation: formData.occupation,
+          villageAddress: formData.villageAddress,
         },
       });
 
@@ -232,6 +238,7 @@ export default function TeacherParents() {
                       <TableHead>Parent ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Phone</TableHead>
+                      <TableHead>Village</TableHead>
                       <TableHead>Occupation</TableHead>
                       <TableHead>Linked Students</TableHead>
                     </TableRow>
@@ -242,6 +249,7 @@ export default function TeacherParents() {
                         <TableCell className="font-mono">{parent.parentId}</TableCell>
                         <TableCell className="font-medium">{parent.name}</TableCell>
                         <TableCell>{parent.phone || "-"}</TableCell>
+                        <TableCell>{parent.villageAddress || "-"}</TableCell>
                         <TableCell>{parent.occupation || "-"}</TableCell>
                         <TableCell>
                           {parent.linkedStudents.length > 0 ? (
@@ -324,6 +332,16 @@ export default function TeacherParents() {
                   placeholder="e.g., Engineer"
                   value={formData.occupation}
                   onChange={(e) => handleInputChange("occupation", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="villageAddress">Village Name</Label>
+                <Input
+                  id="villageAddress"
+                  placeholder="e.g., Ramapur"
+                  value={formData.villageAddress}
+                  onChange={(e) => handleInputChange("villageAddress", e.target.value)}
                 />
               </div>
             </div>
