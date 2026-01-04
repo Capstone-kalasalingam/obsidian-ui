@@ -46,11 +46,11 @@ import {
 } from '@/components/ui/collapsible';
 
 const createTeacherSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  teacherCode: z.string().min(3, 'Teacher Code must be at least 3 characters'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   employeeId: z.string().min(1, 'Employee ID is required'),
-  phone: z.string().optional(),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
 interface Teacher {
@@ -99,7 +99,7 @@ const UserManagement = () => {
 
   // Form data
   const [formData, setFormData] = useState({
-    email: '',
+    teacherCode: '',
     password: '',
     fullName: '',
     employeeId: '',
@@ -182,7 +182,7 @@ const UserManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      email: '',
+      teacherCode: '',
       password: '',
       fullName: '',
       employeeId: '',
@@ -223,11 +223,11 @@ const UserManagement = () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
-          email: formData.email,
+          teacherCode: formData.teacherCode,
           password: formData.password,
           fullName: formData.fullName,
           role: 'teacher',
-          phone: formData.phone || undefined,
+          phone: formData.phone,
           employeeId: formData.employeeId,
           subjectIds: selectedSubjects,
           classIds: selectedClasses,
@@ -356,7 +356,7 @@ const UserManagement = () => {
   const openEditDialog = (teacher: Teacher) => {
     setSelectedTeacher(teacher);
     setFormData({
-      email: teacher.profile?.email || '',
+      teacherCode: teacher.profile?.email?.split('@')[0] || '',
       password: '',
       fullName: teacher.profile?.full_name || '',
       employeeId: teacher.employee_id || '',
@@ -556,7 +556,7 @@ const UserManagement = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Employee ID</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead>Teacher Code</TableHead>
                       <TableHead>Subjects</TableHead>
                       <TableHead>Classes</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -572,7 +572,7 @@ const UserManagement = () => {
                           <Badge variant="outline">{teacher.employee_id || 'N/A'}</Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {teacher.profile?.email || 'N/A'}
+                          {teacher.profile?.email?.split('@')[0] || 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
@@ -671,17 +671,16 @@ const UserManagement = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="teacherCode">Teacher Code *</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter email address"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={errors.email ? 'border-destructive' : ''}
+                    id="teacherCode"
+                    placeholder="Enter teacher code"
+                    value={formData.teacherCode}
+                    onChange={(e) => handleInputChange('teacherCode', e.target.value)}
+                    className={errors.teacherCode ? 'border-destructive' : ''}
                     disabled={formLoading}
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.teacherCode && <p className="text-sm text-destructive">{errors.teacherCode}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -709,15 +708,17 @@ const UserManagement = () => {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="phone">Phone (Optional)</Label>
+                  <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="Enter phone number"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className={errors.phone ? 'border-destructive' : ''}
                     disabled={formLoading}
                   />
+                  {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -838,19 +839,18 @@ const UserManagement = () => {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="edit-email">Email</Label>
+                  <Label htmlFor="edit-teacherCode">Teacher Code</Label>
                   <Input
-                    id="edit-email"
-                    type="email"
-                    value={formData.email}
+                    id="edit-teacherCode"
+                    value={formData.teacherCode}
                     disabled
                     className="bg-muted"
                   />
-                  <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                  <p className="text-xs text-muted-foreground">Teacher code cannot be changed</p>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="edit-phone">Phone</Label>
+                  <Label htmlFor="edit-phone">Phone Number *</Label>
                   <Input
                     id="edit-phone"
                     type="tel"

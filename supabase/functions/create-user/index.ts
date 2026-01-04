@@ -7,7 +7,8 @@ const corsHeaders = {
 };
 
 interface CreateUserRequest {
-  email: string;
+  email?: string;
+  teacherCode?: string;
   password: string;
   fullName: string;
   role: "student" | "parent" | "teacher" | "school_admin";
@@ -77,12 +78,19 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Parse request body
-    const { email, password, fullName, role, phone, employeeId, subjectIds, classIds }: CreateUserRequest = await req.json();
+    const { email, teacherCode, password, fullName, role, phone, employeeId, subjectIds, classIds }: CreateUserRequest = await req.json();
+
+    // Determine the email to use - for teachers, generate from teacherCode
+    let userEmail = email;
+    if (role === "teacher" && teacherCode) {
+      // Generate email from teacher code (e.g., "TCH001" -> "tch001@school.local")
+      userEmail = `${teacherCode.toLowerCase().replace(/\s+/g, '')}@school.local`;
+    }
 
     // Validate input
-    if (!email || !password || !fullName || !role) {
+    if (!userEmail || !password || !fullName || !role) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: email, password, fullName, role" }),
+        JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -95,11 +103,11 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Creating user: ${email} with role: ${role}`);
+    console.log(`Creating user: ${userEmail} with role: ${role}`);
 
     // Create the user using admin client
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: userEmail,
       password,
       email_confirm: true, // Auto-confirm email
       user_metadata: { full_name: fullName },
