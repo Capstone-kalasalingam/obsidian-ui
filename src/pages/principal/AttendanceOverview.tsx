@@ -1,28 +1,16 @@
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockAttendanceData, mockTeachers } from "@/data/mockData";
-import { Calendar, TrendingUp, X } from "lucide-react";
+import { useTeachers, useStudents } from "@/hooks/usePrincipalData";
+import { Calendar, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AttendanceOverview = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [showTeacherDialog, setShowTeacherDialog] = useState(false);
+  const { teachers, loading: teachersLoading } = useTeachers();
+  const { students, loading: studentsLoading } = useStudents();
 
-  const totalTeachers = mockAttendanceData.teachersPresent + mockAttendanceData.teachersAbsent;
-  const totalStudents = mockAttendanceData.studentsPresent + mockAttendanceData.studentsAbsent;
-  const teacherPercentage = Math.round((mockAttendanceData.teachersPresent / totalTeachers) * 100);
-  const studentPercentage = Math.round((mockAttendanceData.studentsPresent / totalStudents) * 100);
-
-  // Mock teachers on leave (taking the last 2 teachers as on leave)
-  const teachersOnLeave = mockTeachers.slice(-mockAttendanceData.teachersAbsent);
-  
-  // Pie chart data
-  const pieData = [
-    { name: 'Present', value: mockAttendanceData.teachersPresent, color: '#22c55e' },
-    { name: 'On Leave', value: mockAttendanceData.teachersAbsent, color: '#ef4444' },
-  ];
+  const loading = teachersLoading || studentsLoading;
 
   return (
     <PrincipalNav>
@@ -42,113 +30,51 @@ const AttendanceOverview = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <Card 
-            className="bg-card border border-border rounded-2xl shadow-card cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => setShowTeacherDialog(true)}
-          >
+          <Card className="bg-card border border-border rounded-2xl shadow-card">
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-primary" />
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
               </div>
-              <p className="text-3xl font-bold mb-1">{mockAttendanceData.teachersPresent}</p>
-              <p className="text-sm font-medium text-foreground">Teachers Present</p>
-              <p className="text-xs text-muted-foreground mt-1">Out of {totalTeachers} • Tap to view</p>
+              {loading ? (
+                <Skeleton className="h-8 w-16 mb-1" />
+              ) : (
+                <p className="text-3xl font-bold mb-1">{teachers.length}</p>
+              )}
+              <p className="text-sm font-medium text-foreground">Total Teachers</p>
+              <p className="text-xs text-muted-foreground mt-1">Active staff</p>
             </CardContent>
           </Card>
 
           <Card className="bg-card border border-border rounded-2xl shadow-card">
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-destructive" />
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-primary" />
                 </div>
               </div>
-              <p className="text-3xl font-bold mb-1">{mockAttendanceData.studentsAbsent}</p>
-              <p className="text-sm font-medium text-foreground">Students Absent</p>
-              <p className="text-xs text-muted-foreground mt-1">Out of {totalStudents}</p>
+              {loading ? (
+                <Skeleton className="h-8 w-16 mb-1" />
+              ) : (
+                <p className="text-3xl font-bold mb-1">{students.length}</p>
+              )}
+              <p className="text-sm font-medium text-foreground">Total Students</p>
+              <p className="text-xs text-muted-foreground mt-1">Enrolled students</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Teacher Attendance Dialog */}
-        <Dialog open={showTeacherDialog} onOpenChange={setShowTeacherDialog}>
-          <DialogContent className="max-w-[90%] max-h-[85vh] overflow-y-auto rounded-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Teacher Attendance</DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-6 mt-4">
-              {/* Pie Chart */}
-              <div className="w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Summary Stats */}
-              <div className="grid grid-cols-2 gap-3">
-                <Card className="bg-green-50 border-green-200 rounded-xl">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-green-700">{mockAttendanceData.teachersPresent}</p>
-                    <p className="text-sm font-medium text-green-600">Present</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-red-50 border-red-200 rounded-xl">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-red-700">{mockAttendanceData.teachersAbsent}</p>
-                    <p className="text-sm font-medium text-red-600">On Leave</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Teachers on Leave List */}
-              {teachersOnLeave.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="font-bold text-base">Teachers on Leave</h4>
-                  <div className="space-y-2">
-                    {teachersOnLeave.map((teacher) => (
-                      <Card key={teacher.id} className="bg-card border border-border rounded-xl">
-                        <CardContent className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-sm font-bold text-red-700">
-                                {teacher.name.split(" ").map(n => n[0]).join("")}
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-semibold text-sm">{teacher.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {teacher.subjects.join(", ")} • {teacher.classAssigned || "No class assigned"}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Info Card */}
+        <Card className="bg-card border border-border rounded-2xl">
+          <CardContent className="p-6 text-center">
+            <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="font-bold text-lg mb-2">Attendance Tracking</h3>
+            <p className="text-sm text-muted-foreground">
+              Detailed attendance tracking will be available soon. Currently showing total counts of teachers and students in the system.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </PrincipalNav>
   );
