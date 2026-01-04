@@ -9,6 +9,8 @@ const corsHeaders = {
 interface CreateUserRequest {
   email?: string;
   teacherId?: string;
+  studentId?: string;
+  parentId?: string;
   password: string;
   fullName: string;
   role: "student" | "parent" | "teacher" | "school_admin";
@@ -16,6 +18,12 @@ interface CreateUserRequest {
   // Teacher-specific fields
   subjectIds?: string[];
   classIds?: string[];
+  // Student-specific fields
+  classId?: string;
+  rollNumber?: string;
+  parentIds?: string[]; // Parent user IDs to link
+  // Parent-specific fields
+  occupation?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -25,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get the authorization header to verify the caller is a school admin
+    // Get the authorization header to verify the caller
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return new Response(
@@ -41,7 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Create client with user's token to verify they're a school admin
+    // Create client with user's token to verify permissions
     const supabaseUser = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -61,35 +69,109 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify caller is a school admin
+    // Get caller's role
     const { data: roleData, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerUser.id)
       .single();
 
-    if (roleError || roleData?.role !== "school_admin") {
-      console.error("User is not a school admin:", roleError);
+    if (roleError) {
+      console.error("Error getting caller role:", roleError);
       return new Response(
-        JSON.stringify({ error: "Only school administrators can create users" }),
+        JSON.stringify({ error: "Failed to verify permissions" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    const callerRole = roleData?.role;
+    
     // Parse request body
-    const { email, teacherId, password, fullName, role, phone, subjectIds, classIds }: CreateUserRequest = await req.json();
+    const { 
+      email, 
+      teacherId, 
+      studentId,
+      parentId,
+      password, 
+      fullName, 
+      role, 
+      phone, 
+      subjectIds, 
+      classIds,
+      classId,
+      rollNumber,
+      parentIds,
+      occupation
+    }: CreateUserRequest = await req.json();
 
-    // Determine the email to use - for teachers, generate from teacherId
+    // Permission check based on role being created
+    const isSchoolAdmin = callerRole === "school_admin";
+    const isTeacher = callerRole === "teacher";
+
+    // School admins can create any user type
+    // Teachers can only create students and parents
+    if (!isSchoolAdmin && !isTeacher) {
+      return new Response(
+        JSON.stringify({ error: "You don't have permission to create users" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Teachers can only create students and parents
+    if (isTeacher && !["student", "parent"].includes(role)) {
+      return new Response(
+        JSON.stringify({ error: "Teachers can only create students and parents" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // For teachers creating students, verify they are assigned to that class
+    if (isTeacher && role === "student" && classId) {
+      const { data: teacherData } = await supabaseAdmin
+        .from("teachers")
+        .select("id")
+        .eq("user_id", callerUser.id)
+        .single();
+
+      if (teacherData) {
+        const { data: assignment } = await supabaseAdmin
+          .from("teacher_assignments")
+          .select("id")
+          .eq("teacher_id", teacherData.id)
+          .eq("class_id", classId)
+          .single();
+
+        if (!assignment) {
+          return new Response(
+            JSON.stringify({ error: "You can only add students to your assigned classes" }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
+
+    // Determine the email to use based on role
     let userEmail = email;
     if (role === "teacher" && teacherId) {
-      // Generate email from teacher ID (e.g., "TCH001" -> "tch001@school.local")
       userEmail = `${teacherId.toLowerCase().replace(/\s+/g, '')}@school.local`;
+    } else if (role === "student" && studentId) {
+      userEmail = `${studentId.toLowerCase().replace(/\s+/g, '')}@school.local`;
+    } else if (role === "parent" && parentId) {
+      userEmail = `${parentId.toLowerCase().replace(/\s+/g, '')}@school.local`;
     }
 
     // Validate input
     if (!userEmail || !password || !fullName || !role) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Additional validation for students
+    if (role === "student" && !classId) {
+      return new Response(
+        JSON.stringify({ error: "Class assignment is required for students" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -108,7 +190,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email: userEmail,
       password,
-      email_confirm: true, // Auto-confirm email
+      email_confirm: true,
       user_metadata: { full_name: fullName },
     });
 
@@ -150,7 +232,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (roleAssignError) {
       console.error("Error assigning role:", roleAssignError);
-      // Cleanup: delete the user if role assignment fails
       await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
       return new Response(
         JSON.stringify({ error: "Failed to assign role. User creation rolled back." }),
@@ -172,13 +253,12 @@ const handler = async (req: Request): Promise<Response> => {
       if (teacherError) {
         console.error("Error creating teacher record:", teacherError);
       } else if (teacherData && subjectIds && classIds && subjectIds.length > 0 && classIds.length > 0) {
-        // Create teacher assignments for each class-subject combination
         const assignments = [];
-        for (const classId of classIds) {
+        for (const cId of classIds) {
           for (const subjectId of subjectIds) {
             assignments.push({
               teacher_id: teacherData.id,
-              class_id: classId,
+              class_id: cId,
               subject_id: subjectId,
               is_class_teacher: false,
             });
@@ -196,13 +276,54 @@ const handler = async (req: Request): Promise<Response> => {
         }
       }
     } else if (role === "student") {
-      // For students, we'd need a class_id which should be passed in
-      console.log("Student record creation requires class_id - skipping automatic creation");
+      // Get active academic year
+      const { data: academicYear } = await supabaseAdmin
+        .from("academic_years")
+        .select("id")
+        .eq("is_active", true)
+        .single();
+
+      const { data: studentData, error: studentError } = await supabaseAdmin
+        .from("students")
+        .insert({
+          user_id: newUser.user.id,
+          class_id: classId,
+          roll_number: rollNumber || null,
+          academic_year_id: academicYear?.id || null,
+          status: "active",
+        })
+        .select()
+        .single();
+      
+      if (studentError) {
+        console.error("Error creating student record:", studentError);
+      } else if (studentData && parentIds && parentIds.length > 0) {
+        // Link parents to student
+        for (const parentUserId of parentIds) {
+          // Get parent record from parents table
+          const { data: parentRecord } = await supabaseAdmin
+            .from("parents")
+            .select("id")
+            .eq("user_id", parentUserId)
+            .single();
+
+          if (parentRecord) {
+            await supabaseAdmin
+              .from("student_parents")
+              .insert({
+                student_id: studentData.id,
+                parent_id: parentRecord.id,
+                is_primary: parentIds.indexOf(parentUserId) === 0,
+              });
+          }
+        }
+      }
     } else if (role === "parent") {
       const { error: parentError } = await supabaseAdmin
         .from("parents")
         .insert({
           user_id: newUser.user.id,
+          occupation: occupation || null,
         });
       if (parentError) {
         console.error("Error creating parent record:", parentError);
