@@ -55,6 +55,17 @@ const AddStaff = () => {
       });
 
       if (error) throw error;
+      
+      // Check for error in response data (edge function returns 400 with error in body)
+      if (data?.error) {
+        if (data.error.includes("already been registered")) {
+          toast.error("A staff member with this email already exists");
+        } else {
+          toast.error(data.error);
+        }
+        setIsSubmitting(false);
+        return;
+      }
 
       setShowSuccess(true);
       
@@ -63,7 +74,12 @@ const AddStaff = () => {
         navigate("/principal/staff");
       }, 1500);
     } catch (error: any) {
-      toast.error(error.message || "Failed to add staff member");
+      const errorMessage = error?.message || "Failed to add staff member";
+      if (errorMessage.includes("already been registered")) {
+        toast.error("A staff member with this email already exists");
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsSubmitting(false);
     }
