@@ -1,6 +1,5 @@
 import StudentNav from "@/components/student/StudentNav";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { 
   Lightbulb, 
   CalendarDays, 
@@ -11,19 +10,18 @@ import {
   FileText,
   ClipboardCheck,
   Sparkles,
-  Clock,
   CheckCircle2,
   Flame,
   Target,
   Zap,
-  Star,
-  GraduationCap
+  GraduationCap,
+  Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { studentProfile } from "@/data/studentMockData";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { useStudentData } from "@/hooks/useStudentData";
 
-// Activity data for chart
+// Activity data for chart (placeholder - could be made dynamic later)
 const activityData = [
   { day: "Mon", practice: 30, revision: 20 },
   { day: "Tue", practice: 45, revision: 35 },
@@ -34,64 +32,27 @@ const activityData = [
   { day: "Sun", practice: 50, revision: 40 },
 ];
 
-// Today's courses (School Subjects)
-const todaysCourses = [
-  {
-    id: 1,
-    title: "Telugu",
-    topics: ["Grammar", "Poetry", "Comprehension"],
-    progress: 78,
-    icon: "📖",
-    gradient: "from-orange-500 to-red-600"
-  },
-  {
-    id: 2,
-    title: "Hindi",
-    topics: ["Vyakaran", "Sahitya", "Lekhan"],
-    progress: 65,
-    icon: "📝",
-    gradient: "from-amber-500 to-orange-600"
-  },
-  {
-    id: 3,
-    title: "English",
-    topics: ["Grammar", "Literature", "Writing"],
-    progress: 82,
-    icon: "📚",
-    gradient: "from-blue-500 to-indigo-600"
-  },
-  {
-    id: 4,
-    title: "Mathematics",
-    topics: ["Algebra", "Geometry", "Arithmetic"],
-    progress: 70,
-    icon: "📐",
-    gradient: "from-violet-500 to-purple-600"
-  },
-  {
-    id: 5,
-    title: "Science",
-    topics: ["Physics", "Chemistry", "Biology"],
-    progress: 75,
-    icon: "🔬",
-    gradient: "from-emerald-500 to-teal-600"
-  },
-  {
-    id: 6,
-    title: "Social Studies",
-    topics: ["History", "Geography", "Civics"],
-    progress: 68,
-    icon: "🌍",
-    gradient: "from-cyan-500 to-blue-600"
-  }
-];
+// Subject icons and gradients mapping
+const subjectStyles: Record<string, { icon: string; gradient: string }> = {
+  telugu: { icon: "📖", gradient: "from-orange-500 to-red-600" },
+  hindi: { icon: "📝", gradient: "from-amber-500 to-orange-600" },
+  english: { icon: "📚", gradient: "from-blue-500 to-indigo-600" },
+  mathematics: { icon: "📐", gradient: "from-violet-500 to-purple-600" },
+  maths: { icon: "📐", gradient: "from-violet-500 to-purple-600" },
+  science: { icon: "🔬", gradient: "from-emerald-500 to-teal-600" },
+  social: { icon: "🌍", gradient: "from-cyan-500 to-blue-600" },
+  "social studies": { icon: "🌍", gradient: "from-cyan-500 to-blue-600" },
+  physics: { icon: "⚡", gradient: "from-yellow-500 to-amber-600" },
+  chemistry: { icon: "🧪", gradient: "from-green-500 to-emerald-600" },
+  biology: { icon: "🧬", gradient: "from-pink-500 to-rose-600" },
+  computer: { icon: "💻", gradient: "from-slate-500 to-gray-600" },
+  default: { icon: "📘", gradient: "from-primary to-violet-600" },
+};
 
-// Stats data
-const statsData = [
-  { label: "Streak", value: "12", unit: "days", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10" },
-  { label: "Tasks Done", value: "48", unit: "this week", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  { label: "XP Points", value: "2,400", unit: "earned", icon: Zap, color: "text-primary", bg: "bg-primary/10" },
-];
+const getSubjectStyle = (name: string) => {
+  const key = name.toLowerCase();
+  return subjectStyles[key] || subjectStyles.default;
+};
 
 // Quick actions
 const quickActions = [
@@ -106,7 +67,40 @@ const quickActions = [
 ];
 
 const Dashboard = () => {
-  const firstName = studentProfile.name.split(' ')[0];
+  const { student, subjects, loading, error } = useStudentData();
+
+  if (loading) {
+    return (
+      <StudentNav>
+        <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </StudentNav>
+    );
+  }
+
+  if (error || !student) {
+    return (
+      <StudentNav>
+        <div className="min-h-screen bg-gradient-soft flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-destructive mb-2">Failed to load student data</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </div>
+        </div>
+      </StudentNav>
+    );
+  }
+
+  // Calculate XP points (example: 50 XP per task completed)
+  const xpPoints = student.totalTasksCompleted * 50;
+
+  // Stats data using real student data
+  const statsData = [
+    { label: "Streak", value: String(student.currentStreakDays), unit: "days", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { label: "Tasks Done", value: String(student.totalTasksCompleted), unit: "total", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "XP Points", value: xpPoints.toLocaleString(), unit: "earned", icon: Zap, color: "text-primary", bg: "bg-primary/10" },
+  ];
 
   return (
     <StudentNav>
@@ -127,7 +121,7 @@ const Dashboard = () => {
                         <GraduationCap className="w-7 h-7" />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold">Hello, {firstName} 👋</h1>
+                        <h1 className="text-2xl font-bold">Hello, {student.firstName} 👋</h1>
                         <p className="text-white/70 text-sm">Let's continue your learning journey!</p>
                       </div>
                     </div>
@@ -151,27 +145,34 @@ const Dashboard = () => {
                   My Courses
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {todaysCourses.map((course) => (
-                    <Card key={course.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-card">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${course.gradient} flex items-center justify-center text-lg shadow-md`}>
-                            {course.icon}
+                  {subjects.length > 0 ? subjects.map((subject) => {
+                    const style = getSubjectStyle(subject.name);
+                    return (
+                      <Card key={subject.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-card">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${style.gradient} flex items-center justify-center text-lg shadow-md`}>
+                              {style.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-foreground text-sm truncate">{subject.name}</h3>
+                              <p className="text-xs text-muted-foreground">{subject.score}% proficiency</p>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-foreground text-sm truncate">{course.title}</h3>
-                            <p className="text-xs text-muted-foreground">{course.progress}% complete</p>
+                          <div className="bg-muted rounded-full h-1.5 overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full bg-gradient-to-r ${style.gradient} transition-all`}
+                              style={{ width: `${subject.score}%` }}
+                            />
                           </div>
-                        </div>
-                        <div className="bg-muted rounded-full h-1.5 overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${course.gradient} transition-all`}
-                            style={{ width: `${course.progress}%` }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  }) : (
+                    <div className="col-span-full text-center py-8 text-muted-foreground">
+                      <p>No subjects assigned yet</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -260,17 +261,17 @@ const Dashboard = () => {
                       <GraduationCap className="w-7 h-7" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">{studentProfile.name}</h4>
-                      <p className="text-white/70 text-sm">{studentProfile.class} • Roll: {studentProfile.rollNumber}</p>
+                      <h4 className="font-bold text-lg">{student.fullName}</h4>
+                      <p className="text-white/70 text-sm">{student.classDisplay} • Roll: {student.rollNumber || 'N/A'}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-center">
                     <div className="bg-white/10 rounded-xl py-2">
-                      <p className="text-lg font-bold">2024-25</p>
+                      <p className="text-lg font-bold">{student.academicYear || 'N/A'}</p>
                       <p className="text-[10px] text-white/60 uppercase">Academic Year</p>
                     </div>
                     <div className="bg-white/10 rounded-xl py-2">
-                      <p className="text-lg font-bold">Active</p>
+                      <p className="text-lg font-bold capitalize">{student.status}</p>
                       <p className="text-[10px] text-white/60 uppercase">Status</p>
                     </div>
                   </div>
@@ -283,7 +284,7 @@ const Dashboard = () => {
                   <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-3xl font-bold">2,400</p>
+                      <p className="text-3xl font-bold">{xpPoints.toLocaleString()}</p>
                       <p className="text-white/60 text-sm">XP Points</p>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -302,7 +303,7 @@ const Dashboard = () => {
                       <Flame className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">12 Days</p>
+                      <p className="text-2xl font-bold">{student.currentStreakDays} Days</p>
                       <p className="text-sm text-white/70">Learning Streak</p>
                     </div>
                   </div>
