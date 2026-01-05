@@ -82,13 +82,14 @@ const Auth = () => {
 
     try {
       // Convert ID to email format based on role
+      // Must match the format used in create-user edge function
       let email = userId;
       if (selectedRole === 'teacher') {
-        email = `${userId.toLowerCase()}@school.local`;
+        email = `${userId.toLowerCase().replace(/\s+/g, '')}@school.local`;
       } else if (selectedRole === 'student') {
-        email = `${userId.toLowerCase()}@student.school.local`;
+        email = `${userId.toLowerCase().replace(/\s+/g, '')}@school.local`;
       } else if (selectedRole === 'parent') {
-        email = `${userId.toLowerCase()}@parent.school.local`;
+        email = `${userId.toLowerCase().replace(/\s+/g, '')}@school.local`;
       }
       // school_admin uses actual email
 
