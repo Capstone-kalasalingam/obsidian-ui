@@ -18,19 +18,19 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { 
-  User, 
-  GraduationCap, 
-  MapPin, 
-  Phone, 
-  Lock, 
-  Users, 
+import {
+  User,
+  GraduationCap,
+  MapPin,
+  Phone,
+  Lock,
+  Users,
   Home,
   Briefcase,
   CheckCircle,
   Loader2,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 
 interface ClassInfo {
@@ -63,6 +63,7 @@ export function AddStudentDialog({
 }: AddStudentDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
 
   const [formData, setFormData] = useState({
@@ -100,6 +101,7 @@ export function AddStudentDialog({
       motherName: "",
       parentOccupation: "",
     });
+    setSuccessMessage(null);
     setStep(1);
   };
 
@@ -143,6 +145,8 @@ export function AddStudentDialog({
     setIsSubmitting(true);
 
     try {
+      setSuccessMessage(null);
+
       const { data, error } = await supabase.functions.invoke("create-user", {
         body: {
           studentId: formData.studentId,
@@ -161,29 +165,35 @@ export function AddStudentDialog({
         },
       });
 
-      if (error) throw error;
-
-      // Check for error in response data
-      if (data?.error) {
-        if (data.error.includes("already been registered")) {
-          toast.error("A student with this ID already exists. Please use a different Student ID.");
-        } else if (data.error.includes("students_class_roll_unique")) {
-          toast.error("This roll number is already taken in this class");
-        } else {
-          toast.error(data.error);
-        }
-        setIsSubmitting(false);
+      // If the function returned a non-2xx previously, invoke() would throw an error.
+      // We now prefer a 200 response with { success: false, error_code }.
+      if (error) {
+        toast.error(error.message || "Failed to create student");
         return;
       }
 
+      if (data?.success === false) {
+        if (data.error_code === "email_exists" || String(data.error || "").includes("already been registered")) {
+          toast.error("A student with this ID already exists. Please use a different Student ID.");
+        } else if (String(data.error || "").includes("students_class_roll_unique")) {
+          toast.error("This roll number is already taken in this class");
+        } else {
+          toast.error(data.error || "Failed to create student");
+        }
+        return;
+      }
+
+      setSuccessMessage("Student created successfully.");
       setShowSuccess(true);
+
+      // Keep the success message visible in the form briefly, then close.
       setTimeout(() => {
         setShowSuccess(false);
         resetForm();
         onOpenChange(false);
         onSuccess();
-        toast.success("Student added successfully!");
-      }, 1500);
+        toast.success("Student created successfully!");
+      }, 1200);
     } catch (error: any) {
       const errorMessage = error?.message || "Failed to create student";
       if (errorMessage.includes("already been registered")) {
@@ -494,6 +504,15 @@ export function AddStudentDialog({
             )}
           </AnimatePresence>
         </div>
+
+        {/* Success message (in-form) */}
+        {successMessage && (
+          <div className="px-6 pb-2">
+            <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground">
+              {successMessage}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border bg-muted/30">
