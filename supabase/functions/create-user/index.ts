@@ -210,10 +210,28 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (createError) {
       console.error("Error creating user:", createError);
-      return new Response(
-        JSON.stringify({ error: createError.message }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+
+      const code = (createError as any)?.code;
+      const status = (createError as any)?.status;
+      const message = createError.message || "Failed to create user";
+
+      // If user already exists, return 200 so the web app can show a friendly message
+      // without treating it as a hard/uncaught error.
+      if (code === "email_exists" || status === 422 || message.includes("already been registered")) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error_code: "email_exists",
+            error: "A user with this email address has already been registered",
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(JSON.stringify({ success: false, error: message }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!newUser.user) {
