@@ -42,6 +42,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Plus, Search, Users, Edit2, Trash2, UserPlus, Upload, Download, FileSpreadsheet } from "lucide-react";
+import { AddStudentDialog } from "@/components/teacher/AddStudentDialog";
 
 interface Student {
   id: string;
@@ -712,144 +713,13 @@ export default function TeacherStudents() {
         </Card>
 
         {/* Add Student Dialog */}
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Student</DialogTitle>
-              <DialogDescription>
-                Create a new student account and assign to a class
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="studentId">Student ID *</Label>
-                <Input
-                  id="studentId"
-                  placeholder="e.g., STU001"
-                  value={formData.studentId}
-                  onChange={(e) => handleInputChange("studentId", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  placeholder="Enter student's full name"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange("fullName", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="rollNumber">Roll Number (unique per class)</Label>
-                <Input
-                  id="rollNumber"
-                  type="number"
-                  placeholder="e.g., 1"
-                  value={formData.rollNumber}
-                  onChange={(e) => handleInputChange("rollNumber", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="villageAddress">Village/Address</Label>
-                <Input
-                  id="villageAddress"
-                  placeholder="Enter village or address"
-                  value={formData.villageAddress}
-                  onChange={(e) => handleInputChange("villageAddress", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="residenceType">Residence Type *</Label>
-                <Select
-                  value={formData.residenceType}
-                  onValueChange={(value) => handleInputChange("residenceType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day_scholar">Day Scholar</SelectItem>
-                    <SelectItem value="hostler">Hostler</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="parentPhone">Parent Phone Number</Label>
-                <Input
-                  id="parentPhone"
-                  type="tel"
-                  placeholder="e.g., 9876543210"
-                  value={formData.parentPhone}
-                  onChange={(e) => handleInputChange("parentPhone", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="classId">Class *</Label>
-                <Select
-                  value={formData.classId}
-                  onValueChange={(value) => handleInputChange("classId", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {assignedClasses.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name} - {c.section}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="parentId">Link Parent (Optional)</Label>
-                <Select
-                  value={formData.parentId}
-                  onValueChange={(value) => handleInputChange("parentId", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select parent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parents.map((p) => (
-                      <SelectItem key={p.userId} value={p.userId}>
-                        {p.name} ({p.parentId})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateStudent} disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Student"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <AddStudentDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          assignedClasses={assignedClasses}
+          parents={parents}
+          onSuccess={fetchData}
+        />
 
         {/* Edit Student Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
