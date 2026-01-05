@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PrincipalNav from "@/components/principal/PrincipalNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,6 +61,7 @@ interface SubjectRow {
 }
 
 const ClassSubjectManagement = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("classes");
   
@@ -385,7 +387,11 @@ const ClassSubjectManagement = () => {
               ) : (
                 <div className="space-y-3">
                   {classes.map((cls) => (
-                    <Card key={cls.id} className="hover:shadow-md transition-shadow">
+                    <Card 
+                      key={cls.id} 
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/principal/class/${cls.id}`)}
+                    >
                       <CardContent className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -400,14 +406,20 @@ const ClassSubjectManagement = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => openEditClass(cls)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditClass(cls);
+                            }}
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setDeleteClassId(cls.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteClassId(cls.id);
+                            }}
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
