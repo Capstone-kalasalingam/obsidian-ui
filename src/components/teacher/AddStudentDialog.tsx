@@ -29,7 +29,8 @@ import {
   Briefcase,
   CheckCircle,
   Loader2,
-  X
+  ArrowRight,
+  ArrowLeft
 } from "lucide-react";
 
 interface ClassInfo {
@@ -62,7 +63,7 @@ export function AddStudentDialog({
 }: AddStudentDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [activeSection, setActiveSection] = useState<"student" | "parent">("student");
+  const [step, setStep] = useState<1 | 2>(1);
 
   const [formData, setFormData] = useState({
     studentId: "",
@@ -99,7 +100,7 @@ export function AddStudentDialog({
       motherName: "",
       parentOccupation: "",
     });
-    setActiveSection("student");
+    setStep(1);
   };
 
   const handleClose = () => {
@@ -109,14 +110,33 @@ export function AddStudentDialog({
     }
   };
 
-  const handleCreateStudent = async () => {
+  const validateStep1 = () => {
     if (!formData.studentId || !formData.fullName || !formData.password || !formData.classId) {
       toast.error("Please fill in all required fields");
-      return;
+      return false;
     }
 
     if (formData.rollNumber && !/^\d+$/.test(formData.rollNumber)) {
       toast.error("Roll number must be a number");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setStep(1);
+  };
+
+  const handleCreateStudent = async () => {
+    if (!validateStep1()) {
+      setStep(1);
       return;
     }
 
@@ -135,7 +155,6 @@ export function AddStudentDialog({
           residenceType: formData.residenceType || "day_scholar",
           parentPhone: formData.parentPhone,
           parentIds: formData.parentId ? [formData.parentId] : [],
-          // Include parent info in metadata
           fatherName: formData.fatherName,
           motherName: formData.motherName,
           parentOccupation: formData.parentOccupation,
@@ -227,47 +246,33 @@ export function AddStudentDialog({
               </div>
               <div>
                 <DialogTitle className="text-lg font-semibold">Add New Student</DialogTitle>
-                <p className="text-sm text-muted-foreground">Fill in student and parent details</p>
+                <p className="text-sm text-muted-foreground">
+                  Step {step} of 2 - {step === 1 ? "Student Info" : "Parent Info"}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Section Tabs */}
+          {/* Step Indicator */}
           <div className="flex gap-2 mt-4">
-            <button
-              onClick={() => setActiveSection("student")}
-              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
-                activeSection === "student"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              <User className="w-4 h-4 inline-block mr-2" />
-              Student Info
-            </button>
-            <button
-              onClick={() => setActiveSection("parent")}
-              className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
-                activeSection === "parent"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              <Users className="w-4 h-4 inline-block mr-2" />
-              Parent Info
-            </button>
+            <div className={`flex-1 h-1.5 rounded-full transition-all ${
+              step >= 1 ? "bg-primary" : "bg-muted"
+            }`} />
+            <div className={`flex-1 h-1.5 rounded-full transition-all ${
+              step >= 2 ? "bg-primary" : "bg-muted"
+            }`} />
           </div>
         </DialogHeader>
 
         {/* Form Content */}
         <div className="overflow-y-auto max-h-[50vh] px-6 py-4">
           <AnimatePresence mode="wait">
-            {activeSection === "student" ? (
+            {step === 1 ? (
               <motion.div
-                key="student"
+                key="step1"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
+                exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
@@ -392,10 +397,10 @@ export function AddStudentDialog({
               </motion.div>
             ) : (
               <motion.div
-                key="parent"
+                key="step2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
@@ -460,31 +465,31 @@ export function AddStudentDialog({
                   />
                 </div>
 
-                {/* Link Existing Parent */}
-                <div className="space-y-2">
-                  <Label htmlFor="parentId" className="text-sm font-medium flex items-center gap-2">
-                    <Users className="w-4 h-4 text-muted-foreground" />
-                    Link Existing Parent (Optional)
-                  </Label>
-                  <Select
-                    value={formData.parentId}
-                    onValueChange={(value) => handleInputChange("parentId", value)}
-                  >
-                    <SelectTrigger className="h-12 rounded-xl bg-muted/50 border-border">
-                      <SelectValue placeholder="Select parent account" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {parents.map((p) => (
-                        <SelectItem key={p.userId} value={p.userId}>
-                          {p.name} ({p.parentId})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Link to an existing parent account if available
-                  </p>
-                </div>
+                {/* Existing Parent Selection (Optional) */}
+                {parents.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="parentId" className="text-sm font-medium flex items-center gap-2">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      Link Existing Parent (Optional)
+                    </Label>
+                    <Select
+                      value={formData.parentId}
+                      onValueChange={(value) => handleInputChange("parentId", value)}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/50 border-border">
+                        <SelectValue placeholder="Select parent to link" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No parent</SelectItem>
+                        {parents.map((p) => (
+                          <SelectItem key={p.id} value={p.userId}>
+                            {p.name} ({p.parentId})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -492,32 +497,54 @@ export function AddStudentDialog({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border bg-muted/30">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="flex-1 h-12 rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateStudent}
-              disabled={isSubmitting}
-              className="flex-1 h-12 rounded-xl font-semibold"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <GraduationCap className="w-4 h-4 mr-2" />
-                  Create Student
-                </>
-              )}
-            </Button>
+          <div className="flex justify-between gap-3">
+            {step === 1 ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  className="flex-1 h-12 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleNextStep}
+                  className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handlePrevStep}
+                  className="flex-1 h-12 rounded-xl"
+                  disabled={isSubmitting}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={handleCreateStudent}
+                  disabled={isSubmitting}
+                  className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Create Student
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>

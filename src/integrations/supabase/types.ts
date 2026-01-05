@@ -434,6 +434,50 @@ export type Database = {
           },
         ]
       }
+      student_parent_details: {
+        Row: {
+          address: string | null
+          created_at: string
+          father_name: string | null
+          id: string
+          mother_name: string | null
+          occupation: string | null
+          phone: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          father_name?: string | null
+          id?: string
+          mother_name?: string | null
+          occupation?: string | null
+          phone?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          father_name?: string | null
+          id?: string
+          mother_name?: string | null
+          occupation?: string | null
+          phone?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_parent_details_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_parents: {
         Row: {
           created_at: string | null

@@ -28,6 +28,10 @@ interface CreateUserRequest {
   // Parent-specific fields
   occupation?: string;
   // villageAddress is shared with parent
+  // Student parent details (stored in separate table)
+  fatherName?: string;
+  motherName?: string;
+  parentOccupation?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -108,7 +112,10 @@ const handler = async (req: Request): Promise<Response> => {
       villageAddress,
       residenceType,
       parentPhone,
-      occupation
+      occupation,
+      fatherName,
+      motherName,
+      parentOccupation
     }: CreateUserRequest = await req.json();
 
     // Permission check based on role being created
@@ -307,24 +314,44 @@ const handler = async (req: Request): Promise<Response> => {
       
       if (studentError) {
         console.error("Error creating student record:", studentError);
-      } else if (studentData && parentIds && parentIds.length > 0) {
-        // Link parents to student
-        for (const parentUserId of parentIds) {
-          // Get parent record from parents table
-          const { data: parentRecord } = await supabaseAdmin
-            .from("parents")
-            .select("id")
-            .eq("user_id", parentUserId)
-            .single();
+      } else if (studentData) {
+        // Insert parent details into student_parent_details table
+        if (fatherName || motherName || parentOccupation || parentPhone) {
+          const { error: parentDetailsError } = await supabaseAdmin
+            .from("student_parent_details")
+            .insert({
+              student_id: studentData.id,
+              father_name: fatherName || null,
+              mother_name: motherName || null,
+              occupation: parentOccupation || null,
+              phone: parentPhone || null,
+              address: villageAddress || null,
+            });
+          
+          if (parentDetailsError) {
+            console.error("Error creating parent details:", parentDetailsError);
+          }
+        }
 
-          if (parentRecord) {
-            await supabaseAdmin
-              .from("student_parents")
-              .insert({
-                student_id: studentData.id,
-                parent_id: parentRecord.id,
-                is_primary: parentIds.indexOf(parentUserId) === 0,
-              });
+        // Link parents to student if provided
+        if (parentIds && parentIds.length > 0) {
+          for (const parentUserId of parentIds) {
+            // Get parent record from parents table
+            const { data: parentRecord } = await supabaseAdmin
+              .from("parents")
+              .select("id")
+              .eq("user_id", parentUserId)
+              .single();
+
+            if (parentRecord) {
+              await supabaseAdmin
+                .from("student_parents")
+                .insert({
+                  student_id: studentData.id,
+                  parent_id: parentRecord.id,
+                  is_primary: parentIds.indexOf(parentUserId) === 0,
+                });
+            }
           }
         }
       }
