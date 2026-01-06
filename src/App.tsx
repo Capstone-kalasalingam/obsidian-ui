@@ -40,6 +40,7 @@ import TeacherCommunication from "./pages/teacher/Communication";
 import TeacherAIInsights from "./pages/teacher/AIInsights";
 import TeacherProfile from "./pages/teacher/Profile";
 import TeacherAcademicCalendar from "./pages/teacher/AcademicCalendar";
+import TeacherHomework from "./pages/teacher/Homework";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentProfile from "./pages/student/Profile";
 import StudentAttendance from "./pages/student/Attendance";
@@ -233,6 +234,11 @@ const App = () => (
             <Route path="/teacher/calendar" element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <TeacherAcademicCalendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/teacher/homework" element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherHomework />
               </ProtectedRoute>
             } />
 
