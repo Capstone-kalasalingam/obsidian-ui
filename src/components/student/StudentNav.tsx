@@ -25,6 +25,7 @@ import {
   Moon,
   ClipboardList,
   Clock,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -43,6 +44,7 @@ const mainMenuItems = [
   { title: "Timetable", url: "/student/timetable", icon: Clock, description: "Weekly class schedule" },
   { title: "Academic Calendar", url: "/student/calendar", icon: CalendarDays, description: "Schedule & exams" },
   { title: "Tutorial", url: "/student/tutorial", icon: GraduationCap, description: "AP Board chapters" },
+  { title: "Communication", url: "/student/communication", icon: MessageSquare, description: "English & Typing" },
   { title: "AI Learning Guide", url: "/student/daily-learning", icon: Lightbulb, description: "Daily AI tasks" },
   { title: "Learn from Image", url: "/student/learn-image", icon: ImagePlus, description: "AI image explanation" },
   { title: "Study Materials", url: "/student/materials", icon: BookOpen, description: "Practice & homework" },
