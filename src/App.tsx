@@ -58,6 +58,7 @@ import StudentTimetable from "./pages/student/Timetable";
 import StudentHomework from "./pages/student/Homework";
 import StudentLeaderboard from "./pages/student/Leaderboard";
 import StudentTutorial from "./pages/student/Tutorial";
+import StudentCommunication from "./pages/student/Communication";
 import ParentDashboard from "./pages/parent/Dashboard";
 import ParentChildSelection from "./pages/parent/ChildSelection";
 import ParentAttendance from "./pages/parent/Attendance";
@@ -328,6 +329,11 @@ const App = () => (
             <Route path="/student/tutorial" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentTutorial />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/communication" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentCommunication />
               </ProtectedRoute>
             } />
 
