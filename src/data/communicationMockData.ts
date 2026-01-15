@@ -398,6 +398,370 @@ export const typingLessons: TypingLesson[] = [
   }
 ];
 
+export interface VocabularyWord {
+  id: string;
+  word: string;
+  meaning: string;
+  pronunciation: string;
+  partOfSpeech: 'noun' | 'verb' | 'adjective' | 'adverb' | 'preposition' | 'conjunction';
+  example: string;
+  synonym: string[];
+  antonym: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  category: string;
+}
+
+export interface VocabularyCategory {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  words: VocabularyWord[];
+}
+
+export const vocabularyCategories: VocabularyCategory[] = [
+  {
+    id: 'vc1',
+    name: 'Daily Life',
+    icon: '🏠',
+    description: 'Words used in everyday conversations',
+    words: [
+      {
+        id: 'v1',
+        word: 'Abundant',
+        meaning: 'Existing or available in large quantities; plentiful',
+        pronunciation: '/əˈbʌndənt/',
+        partOfSpeech: 'adjective',
+        example: 'The garden has an abundant supply of vegetables.',
+        synonym: ['plentiful', 'ample', 'rich'],
+        antonym: ['scarce', 'rare', 'lacking'],
+        difficulty: 'intermediate',
+        category: 'Daily Life'
+      },
+      {
+        id: 'v2',
+        word: 'Accomplish',
+        meaning: 'To achieve or complete successfully',
+        pronunciation: '/əˈkʌmplɪʃ/',
+        partOfSpeech: 'verb',
+        example: 'She worked hard to accomplish her goals.',
+        synonym: ['achieve', 'complete', 'fulfill'],
+        antonym: ['fail', 'neglect'],
+        difficulty: 'intermediate',
+        category: 'Daily Life'
+      },
+      {
+        id: 'v3',
+        word: 'Beautiful',
+        meaning: 'Pleasing to the senses or mind',
+        pronunciation: '/ˈbjuːtɪfl/',
+        partOfSpeech: 'adjective',
+        example: 'The sunset was beautiful today.',
+        synonym: ['pretty', 'lovely', 'gorgeous'],
+        antonym: ['ugly', 'unattractive'],
+        difficulty: 'beginner',
+        category: 'Daily Life'
+      },
+      {
+        id: 'v4',
+        word: 'Delicious',
+        meaning: 'Highly pleasant to taste',
+        pronunciation: '/dɪˈlɪʃəs/',
+        partOfSpeech: 'adjective',
+        example: 'My mother made a delicious cake.',
+        synonym: ['tasty', 'yummy', 'flavorful'],
+        antonym: ['tasteless', 'bland'],
+        difficulty: 'beginner',
+        category: 'Daily Life'
+      },
+      {
+        id: 'v5',
+        word: 'Enthusiastic',
+        meaning: 'Having or showing intense excitement',
+        pronunciation: '/ɪnˌθjuːziˈæstɪk/',
+        partOfSpeech: 'adjective',
+        example: 'The students were enthusiastic about the field trip.',
+        synonym: ['excited', 'eager', 'passionate'],
+        antonym: ['indifferent', 'apathetic'],
+        difficulty: 'advanced',
+        category: 'Daily Life'
+      }
+    ]
+  },
+  {
+    id: 'vc2',
+    name: 'School & Education',
+    icon: '📚',
+    description: 'Academic and classroom vocabulary',
+    words: [
+      {
+        id: 'v6',
+        word: 'Curriculum',
+        meaning: 'The subjects in a course of study',
+        pronunciation: '/kəˈrɪkjʊləm/',
+        partOfSpeech: 'noun',
+        example: 'The school updated its curriculum this year.',
+        synonym: ['syllabus', 'program', 'course'],
+        antonym: [],
+        difficulty: 'advanced',
+        category: 'School & Education'
+      },
+      {
+        id: 'v7',
+        word: 'Diligent',
+        meaning: 'Showing care and effort in work',
+        pronunciation: '/ˈdɪlɪdʒənt/',
+        partOfSpeech: 'adjective',
+        example: 'She is a diligent student who always completes her homework.',
+        synonym: ['hardworking', 'industrious', 'assiduous'],
+        antonym: ['lazy', 'careless'],
+        difficulty: 'intermediate',
+        category: 'School & Education'
+      },
+      {
+        id: 'v8',
+        word: 'Examine',
+        meaning: 'To inspect or investigate closely',
+        pronunciation: '/ɪɡˈzæmɪn/',
+        partOfSpeech: 'verb',
+        example: 'The teacher will examine our projects tomorrow.',
+        synonym: ['inspect', 'study', 'analyze'],
+        antonym: ['ignore', 'overlook'],
+        difficulty: 'beginner',
+        category: 'School & Education'
+      },
+      {
+        id: 'v9',
+        word: 'Knowledge',
+        meaning: 'Facts, information, and skills acquired through experience or education',
+        pronunciation: '/ˈnɒlɪdʒ/',
+        partOfSpeech: 'noun',
+        example: 'Reading books increases our knowledge.',
+        synonym: ['understanding', 'wisdom', 'learning'],
+        antonym: ['ignorance'],
+        difficulty: 'beginner',
+        category: 'School & Education'
+      },
+      {
+        id: 'v10',
+        word: 'Participate',
+        meaning: 'To take part in an activity',
+        pronunciation: '/pɑːˈtɪsɪpeɪt/',
+        partOfSpeech: 'verb',
+        example: 'All students should participate in class discussions.',
+        synonym: ['join', 'engage', 'contribute'],
+        antonym: ['abstain', 'withdraw'],
+        difficulty: 'intermediate',
+        category: 'School & Education'
+      }
+    ]
+  },
+  {
+    id: 'vc3',
+    name: 'Emotions & Feelings',
+    icon: '💭',
+    description: 'Words to express emotions',
+    words: [
+      {
+        id: 'v11',
+        word: 'Anxious',
+        meaning: 'Feeling worried or nervous',
+        pronunciation: '/ˈæŋkʃəs/',
+        partOfSpeech: 'adjective',
+        example: 'I felt anxious before the exam.',
+        synonym: ['worried', 'nervous', 'uneasy'],
+        antonym: ['calm', 'relaxed'],
+        difficulty: 'intermediate',
+        category: 'Emotions & Feelings'
+      },
+      {
+        id: 'v12',
+        word: 'Grateful',
+        meaning: 'Feeling thankful',
+        pronunciation: '/ˈɡreɪtfl/',
+        partOfSpeech: 'adjective',
+        example: 'I am grateful for your help.',
+        synonym: ['thankful', 'appreciative'],
+        antonym: ['ungrateful'],
+        difficulty: 'beginner',
+        category: 'Emotions & Feelings'
+      },
+      {
+        id: 'v13',
+        word: 'Frustrated',
+        meaning: 'Feeling upset because of inability to change a situation',
+        pronunciation: '/frʌˈstreɪtɪd/',
+        partOfSpeech: 'adjective',
+        example: 'He felt frustrated when he could not solve the problem.',
+        synonym: ['annoyed', 'disappointed', 'discouraged'],
+        antonym: ['satisfied', 'content'],
+        difficulty: 'intermediate',
+        category: 'Emotions & Feelings'
+      },
+      {
+        id: 'v14',
+        word: 'Confident',
+        meaning: 'Feeling sure about oneself',
+        pronunciation: '/ˈkɒnfɪdənt/',
+        partOfSpeech: 'adjective',
+        example: 'She spoke with a confident voice.',
+        synonym: ['self-assured', 'bold', 'certain'],
+        antonym: ['insecure', 'doubtful'],
+        difficulty: 'intermediate',
+        category: 'Emotions & Feelings'
+      },
+      {
+        id: 'v15',
+        word: 'Curious',
+        meaning: 'Eager to know or learn something',
+        pronunciation: '/ˈkjʊəriəs/',
+        partOfSpeech: 'adjective',
+        example: 'Children are naturally curious about the world.',
+        synonym: ['inquisitive', 'interested', 'eager'],
+        antonym: ['indifferent', 'uninterested'],
+        difficulty: 'beginner',
+        category: 'Emotions & Feelings'
+      }
+    ]
+  },
+  {
+    id: 'vc4',
+    name: 'Nature & Environment',
+    icon: '🌳',
+    description: 'Words related to nature',
+    words: [
+      {
+        id: 'v16',
+        word: 'Atmosphere',
+        meaning: 'The layer of gases surrounding Earth',
+        pronunciation: '/ˈætməsfɪə/',
+        partOfSpeech: 'noun',
+        example: 'The atmosphere protects us from harmful radiation.',
+        synonym: ['air', 'sky', 'environment'],
+        antonym: [],
+        difficulty: 'intermediate',
+        category: 'Nature & Environment'
+      },
+      {
+        id: 'v17',
+        word: 'Conservation',
+        meaning: 'Protection of natural resources',
+        pronunciation: '/ˌkɒnsəˈveɪʃn/',
+        partOfSpeech: 'noun',
+        example: 'Wildlife conservation is important for our planet.',
+        synonym: ['preservation', 'protection', 'maintenance'],
+        antonym: ['destruction', 'waste'],
+        difficulty: 'advanced',
+        category: 'Nature & Environment'
+      },
+      {
+        id: 'v18',
+        word: 'Ecosystem',
+        meaning: 'A biological community of interacting organisms',
+        pronunciation: '/ˈiːkəʊsɪstəm/',
+        partOfSpeech: 'noun',
+        example: 'The forest ecosystem includes plants, animals, and insects.',
+        synonym: ['habitat', 'environment'],
+        antonym: [],
+        difficulty: 'advanced',
+        category: 'Nature & Environment'
+      },
+      {
+        id: 'v19',
+        word: 'Pollution',
+        meaning: 'Contamination of the natural environment',
+        pronunciation: '/pəˈluːʃn/',
+        partOfSpeech: 'noun',
+        example: 'Air pollution is a major problem in cities.',
+        synonym: ['contamination', 'impurity'],
+        antonym: ['purification', 'cleanliness'],
+        difficulty: 'beginner',
+        category: 'Nature & Environment'
+      },
+      {
+        id: 'v20',
+        word: 'Sustainable',
+        meaning: 'Able to be maintained at a certain rate or level',
+        pronunciation: '/səˈsteɪnəbl/',
+        partOfSpeech: 'adjective',
+        example: 'We need sustainable energy sources for the future.',
+        synonym: ['renewable', 'maintainable', 'viable'],
+        antonym: ['unsustainable', 'harmful'],
+        difficulty: 'advanced',
+        category: 'Nature & Environment'
+      }
+    ]
+  },
+  {
+    id: 'vc5',
+    name: 'Actions & Verbs',
+    icon: '⚡',
+    description: 'Common action words',
+    words: [
+      {
+        id: 'v21',
+        word: 'Analyze',
+        meaning: 'To examine in detail',
+        pronunciation: '/ˈænəlaɪz/',
+        partOfSpeech: 'verb',
+        example: 'Scientists analyze data to find patterns.',
+        synonym: ['examine', 'study', 'investigate'],
+        antonym: ['ignore', 'overlook'],
+        difficulty: 'intermediate',
+        category: 'Actions & Verbs'
+      },
+      {
+        id: 'v22',
+        word: 'Collaborate',
+        meaning: 'To work together with others',
+        pronunciation: '/kəˈlæbəreɪt/',
+        partOfSpeech: 'verb',
+        example: 'Students collaborate on group projects.',
+        synonym: ['cooperate', 'team up', 'work together'],
+        antonym: ['compete', 'oppose'],
+        difficulty: 'intermediate',
+        category: 'Actions & Verbs'
+      },
+      {
+        id: 'v23',
+        word: 'Demonstrate',
+        meaning: 'To show clearly',
+        pronunciation: '/ˈdemənstreɪt/',
+        partOfSpeech: 'verb',
+        example: 'The teacher will demonstrate the experiment.',
+        synonym: ['show', 'display', 'illustrate'],
+        antonym: ['hide', 'conceal'],
+        difficulty: 'intermediate',
+        category: 'Actions & Verbs'
+      },
+      {
+        id: 'v24',
+        word: 'Encourage',
+        meaning: 'To give support or confidence',
+        pronunciation: '/ɪnˈkʌrɪdʒ/',
+        partOfSpeech: 'verb',
+        example: 'Parents encourage their children to do their best.',
+        synonym: ['motivate', 'inspire', 'support'],
+        antonym: ['discourage', 'dissuade'],
+        difficulty: 'beginner',
+        category: 'Actions & Verbs'
+      },
+      {
+        id: 'v25',
+        word: 'Investigate',
+        meaning: 'To carry out research or study',
+        pronunciation: '/ɪnˈvestɪɡeɪt/',
+        partOfSpeech: 'verb',
+        example: 'The police will investigate the crime.',
+        synonym: ['examine', 'research', 'explore'],
+        antonym: ['ignore', 'neglect'],
+        difficulty: 'intermediate',
+        category: 'Actions & Verbs'
+      }
+    ]
+  }
+];
+
 export interface UserProgress {
   lessonId: string;
   completed: boolean;
